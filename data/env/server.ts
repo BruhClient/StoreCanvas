@@ -11,6 +11,8 @@ export const env = createEnv({
     AUTH_DRIZZLE_URL: z.string(),
     RESEND_API_KEY: z.string(),
     UPLOADTHING_TOKEN: z.string(),
+    STRIPE_WEBHOOK_SECRET: z.string(),
+    STRIPE_SECRET_KEY: z.string(),
   },
   experimental__runtimeEnv: process.env,
 });

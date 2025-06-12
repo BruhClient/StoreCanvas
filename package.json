@@ -19,11 +19,14 @@
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-email/components": "^0.0.42",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.3.1",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@uploadthing/react": "^7.3.1",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.2",
     "input-otp": "^1.4.2",
@@ -42,6 +45,7 @@
     "tailwind-merge": "^3.3.1",
     "uploadthing": "^7.7.2",
     "uuid": "^11.1.0",
+    "vaul": "^1.1.2",
     "zod": "^3.25.61"
   },
   "devDependencies": {

@@ -5,8 +5,11 @@ import {
   text,
   primaryKey,
   integer,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
+
+export const userPlanEnum = pgEnum("user_plan", ["Free", "Pro", "Premium"]);
 
 export const users = pgTable("user", {
   id: text("id")
@@ -18,6 +21,7 @@ export const users = pgTable("user", {
   image: text("image"),
   isOauth: boolean("isOauth").notNull().default(false),
   hashedPassword: text("hashedPassword"),
+  plan: userPlanEnum("plan").default("Free").notNull(),
 });
 
 export const accounts = pgTable(

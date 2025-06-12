@@ -1,5 +1,6 @@
 "use server";
 import { env } from "@/data/env/server";
+import { PaymentConfirmationEmail } from "@/email_templates/PaymentConfirmationTemplate";
 import { PasswordResetEmail } from "@/email_templates/PasswordResetTemplate";
 import { VerificationEmail } from "@/email_templates/VerificationTemplate";
 import { Resend } from "resend";
@@ -37,6 +38,40 @@ export const sendPasswordResetEmail = async (email: string, code: string) => {
       to: email,
       subject: "Password Reset Code",
       react: PasswordResetEmail({ code }),
+    });
+    return {
+      success: "Email Sent",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      error: "Something went wrong",
+    };
+  }
+};
+
+export const sendPaymentConfirmationEmail = async (
+  email: string,
+  customerName: string,
+  invoiceNumber: string,
+  amountPaid: number,
+  paymentDate: string,
+  receiptUrl: string,
+  planType: string
+) => {
+  try {
+    await resend.emails.send({
+      from: "mail@quizpdf.net",
+      to: email,
+      subject: "Payment Confirmation",
+      react: PaymentConfirmationEmail({
+        customerName,
+        invoiceNumber,
+        planType,
+        amountPaid,
+        paymentDate,
+        receiptUrl,
+      }),
     });
     return {
       success: "Email Sent",

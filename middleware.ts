@@ -8,6 +8,7 @@ import {
   DEFAULT_ROUTE,
   LOGIN_ROUTE,
   PUBLIC_ROUTES,
+  STRIPE_WEBHOOK_ROUTE,
   UPLOADTHING_PREFIX,
 } from "@/routes";
 
@@ -18,7 +19,8 @@ export default auth((req) => {
   if (
     nextUrl.pathname.includes(API_ROUTE_PREFIX) ||
     nextUrl.pathname.includes(ACCOUNT_VERIFICATION_PREFIX) ||
-    nextUrl.pathname.includes(UPLOADTHING_PREFIX)
+    nextUrl.pathname.includes(UPLOADTHING_PREFIX) ||
+    nextUrl.pathname.includes(STRIPE_WEBHOOK_ROUTE)
   ) {
     return NextResponse.next();
   }
