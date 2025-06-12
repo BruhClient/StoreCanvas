@@ -51,7 +51,7 @@ const UpdateUsernameButton = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex gap-2 max-w-[500px]"
+        className="flex gap-2 max-w-[500px] w-full"
       >
         <FormField
           control={form.control}
@@ -89,8 +89,8 @@ const UpdateUsernameButton = ({
           )}
         />
 
-        <Button size={"lg"} disabled={isPending}>
-          Update Username
+        <Button className="h-full" disabled={isPending}>
+          Update
         </Button>
       </form>
     </Form>

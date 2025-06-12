@@ -10,6 +10,7 @@ export const env = createEnv({
     AUTH_GOOGLE_SECRET: z.string(),
     AUTH_DRIZZLE_URL: z.string(),
     RESEND_API_KEY: z.string(),
+    UPLOADTHING_TOKEN: z.string(),
   },
   experimental__runtimeEnv: process.env,
 });
