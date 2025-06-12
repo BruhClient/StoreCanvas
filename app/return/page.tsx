@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { stripe } from "../../lib/stripe";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function Return({
   searchParams,
@@ -26,12 +28,23 @@ export default async function Return({
 
   if (status === "complete") {
     return (
-      <section id="success">
-        <p>
-          We appreciate your business! A confirmation email will be sent to{" "}
-          {customerEmail}. If you have any questions, please email{" "}
+      <section
+        id="success"
+        className="w-full flex h-screen justify-center items-center flex-col text-center gap-4 px-2"
+      >
+        <div className="text-4xl font-bold">Your Order was Successful !🎉</div>
+        <p className="text-lg max-w-[700px] font-serif">
+          A confirmation email will be sent to{" "}
+          <span className="font-semibold">{customerEmail}</span>. If you have
+          any questions, please email{" "}
+          <a href="mailto:orders@example.com" className="font-semibold">
+            orders@example.com
+          </a>{" "}
+          for support.
         </p>
-        <a href="mailto:orders@example.com">orders@example.com</a>.
+        <Button asChild>
+          <Link href={"/dashboard"}>Back to dashboard</Link>
+        </Button>
       </section>
     );
   }
