@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignInPayload, SignInSchema } from "@/schemas/auth/signin";
@@ -14,11 +14,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, TriangleAlert } from "lucide-react";
 import { MotionDiv } from "@/components/Motion";
 import { containerVariants } from "@/lib/variants";
 import OauthButtons from "@/components/auth/OauthButtons";
 import { Separator } from "@/components/ui/separator";
+import { signInWithEmailAndPassword } from "@/server/actions/auth/signin";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
+import { useRouter, useSearchParams } from "next/navigation";
+import { LOGIN_ROUTE } from "@/routes";
 
 const SignInForm = () => {
   const form = useForm<SignInPayload>({
@@ -29,7 +33,22 @@ const SignInForm = () => {
     },
   });
 
-  const onSubmit = (values: SignInPayload) => {};
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const onSubmit = (values: SignInPayload) => {
+    startTransition(() => {
+      signInWithEmailAndPassword(values).then((data) => {
+        if (data.error) {
+          showErrorToast(data.error);
+        } else {
+          showSuccessToast(data.success);
+          window.location.href = LOGIN_ROUTE;
+        }
+      });
+    });
+  };
 
   return (
     <div className="space-y-6 selection:bg-muted ">
@@ -111,6 +130,7 @@ const SignInForm = () => {
                       {...field}
                       className="py-5 placeholder:font-semibold px-4"
                       placeholder="•••••••"
+                      type="password"
                     />
                   </FormControl>
 
@@ -135,7 +155,13 @@ const SignInForm = () => {
             )}
           />
 
-          <Button className="w-full" size={"lg"}>
+          {searchParams.get("error") && (
+            <div className="text-sm flex items-center gap-2 font-semibold">
+              <TriangleAlert size={20} />
+              Account is linked to another provider
+            </div>
+          )}
+          <Button className="w-full" size={"lg"} disabled={isPending}>
             Sign In
           </Button>
         </form>

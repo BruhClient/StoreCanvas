@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -19,6 +19,8 @@ import { containerVariants } from "@/lib/variants";
 import OauthButtons from "@/components/auth/OauthButtons";
 import { Separator } from "@/components/ui/separator";
 import { SignUpPayload, SignUpSchema } from "@/schemas/auth/signup";
+import { signUpWithEmailAndPassword } from "@/server/actions/auth/signup";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 const SignUpForm = () => {
   const form = useForm<SignUpPayload>({
@@ -31,7 +33,19 @@ const SignUpForm = () => {
     },
   });
 
-  const onSubmit = (values: SignUpPayload) => {};
+  const [isPending, startTransition] = useTransition();
+  const onSubmit = (values: SignUpPayload) => {
+    startTransition(() => {
+      signUpWithEmailAndPassword(values).then((data) => {
+        if (data.error) {
+          showErrorToast(data.error);
+        } else {
+          showSuccessToast(data.success);
+          form.reset();
+        }
+      });
+    });
+  };
 
   return (
     <div className="space-y-6 selection:bg-muted ">
@@ -143,6 +157,7 @@ const SignUpForm = () => {
                       {...field}
                       className="py-5 placeholder:font-semibold px-4"
                       placeholder="•••••••"
+                      type="password"
                     />
                   </FormControl>
 
@@ -167,7 +182,7 @@ const SignUpForm = () => {
             )}
           />
 
-          <Button className="w-full" size={"lg"}>
+          <Button className="w-full" size={"lg"} disabled={isPending}>
             Sign Up
           </Button>
         </form>

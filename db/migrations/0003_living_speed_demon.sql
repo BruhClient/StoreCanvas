@@ -1,0 +1,1 @@
+ALTER TABLE "verificationToken" ADD COLUMN "emailReplaced" text;

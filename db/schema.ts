@@ -17,6 +17,7 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
   isOauth: boolean("isOauth").notNull().default(false),
+  hashedPassword: text("hashedPassword"),
 });
 
 export const accounts = pgTable(
@@ -59,6 +60,7 @@ export const verificationTokens = pgTable(
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
     expires: timestamp("expires", { mode: "date" }).notNull(),
+    emailReplaced: text("emailReplaced"),
   },
   (verificationToken) => [
     {
@@ -68,6 +70,12 @@ export const verificationTokens = pgTable(
     },
   ]
 );
+
+export const codeVerificationTokens = pgTable("codeVerificationToken", {
+  identifier: text("identifier").notNull().primaryKey(),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
+  code: text("code").notNull(),
+});
 
 export const authenticators = pgTable(
   "authenticator",

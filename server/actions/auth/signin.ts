@@ -4,6 +4,9 @@ import { signIn } from "@/lib/auth";
 import { SignInPayload, SignInSchema } from "@/schemas/auth/signin";
 import { getUserByEmail } from "@/server/db/users";
 import { AuthError } from "next-auth";
+import { generateVerificationToken } from "./verificationToken";
+import { sendVerificationEmail } from "./mail";
+import { redirect } from "next/navigation";
 
 export const signInWithEmailAndPassword = async (data: SignInPayload) => {
   const validatedFields = SignInSchema.safeParse(data);
@@ -25,6 +28,14 @@ export const signInWithEmailAndPassword = async (data: SignInPayload) => {
   }
 
   if (!existingUser.emailVerified) {
+    const verificationToken = await generateVerificationToken(email);
+    await sendVerificationEmail(
+      verificationToken.identifier,
+      verificationToken.token
+    );
+    return {
+      error: `Email is not verified . Sending new verification link to ${verificationToken.identifier}`,
+    };
   }
 
   if (existingUser.isOauth) {
@@ -35,13 +46,14 @@ export const signInWithEmailAndPassword = async (data: SignInPayload) => {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/dashboard",
+      redirect: false,
     });
 
     return {
       success: "Successfully logged in",
     };
   } catch (error) {
+    console.log(error);
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":

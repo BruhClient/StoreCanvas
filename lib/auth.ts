@@ -1,11 +1,11 @@
-import { env } from "@/data/env/server";
 import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
-import Credentials from "next-auth/providers/credentials";
+
 import { accounts, sessions, users, verificationTokens } from "@/db/schema";
 import { getUserById, updateUserById } from "@/server/db/users";
+import providers from "./providers";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -27,6 +27,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
       }
     },
+  },
+  pages: {
+    signIn: "/signin",
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -61,12 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  session: { strategy: "jwt" },
 
-  providers: [
-    GoogleProvider({
-      clientId: env.AUTH_GOOGLE_ID,
-      clientSecret: env.AUTH_GOOGLE_SECRET,
-    }),
-    Credentials({}),
-  ],
+  ...providers,
 });

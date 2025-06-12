@@ -15,6 +15,27 @@
       "when": 1749661100263,
       "tag": "0001_tough_redwing",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1749695568871,
+      "tag": "0002_curious_centennial",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1749696265589,
+      "tag": "0003_living_speed_demon",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1749701926654,
+      "tag": "0004_bizarre_albert_cleary",
+      "breakpoints": true
     }
   ]
 }
