@@ -7,9 +7,8 @@ import { useUploadThing } from "@/lib/uploadthing";
 import { useSession } from "next-auth/react";
 import { ClipLoader } from "react-spinners";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
-import { updateUserByEmail, updateUserById } from "@/server/db/users";
+import { updateUserById } from "@/server/db/users";
 import { deleteFileFromUploadthing } from "@/server/actions/uploadthing";
-import { extractFileKey } from "@/lib/utils";
 
 const ProfilePicUploader = ({
   initialImage,

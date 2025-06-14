@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
           hosted_invoice_url,
           amount_paid,
           id,
-          lines,
+
           customer_name,
           metadata,
         } = event.data.object as Stripe.Invoice;
