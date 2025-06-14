@@ -23,6 +23,7 @@ import { signInWithEmailAndPassword } from "@/server/actions/auth/signin";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LOGIN_ROUTE } from "@/routes";
+import { useSession } from "next-auth/react";
 
 const SignInForm = () => {
   const form = useForm<SignInPayload>({
@@ -35,7 +36,7 @@ const SignInForm = () => {
 
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-
+  const { update } = useSession();
   const searchParams = useSearchParams();
   const onSubmit = (values: SignInPayload) => {
     startTransition(() => {
@@ -44,7 +45,8 @@ const SignInForm = () => {
           showErrorToast(data.error);
         } else {
           showSuccessToast(data.success);
-          window.location.href = LOGIN_ROUTE;
+          update();
+          router.push(LOGIN_ROUTE);
         }
       });
     });
