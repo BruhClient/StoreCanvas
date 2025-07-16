@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -51,25 +51,25 @@ const ForgetPasswordForm = () => {
 
   const [verificationCode, setVerificationCode] = useState<string | null>(null);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   const router = useRouter();
   const onSubmit = async (values: ForgetPasswordPayload) => {
     if (stage === 0) {
       // Send email logic
-      startTransition(() => {
-        generatePasswordResetToken(values.email).then(async (data) => {
-          if (data.error) {
-            showErrorToast();
-          } else {
-            await sendPasswordResetEmail(
-              data.success!.identifier,
-              data.success!.code
-            );
-            setVerificationCode(data.success!.code);
-            setStage(1);
-          }
-        });
+      setIsPending(true);
+      generatePasswordResetToken(values.email).then(async (data) => {
+        if (data.error) {
+          showErrorToast();
+        } else {
+          await sendPasswordResetEmail(
+            data.success!.identifier,
+            data.success!.code
+          );
+          setVerificationCode(data.success!.code);
+          setStage(1);
+        }
+        setIsPending(false);
       });
     } else if (stage === 1) {
       if (values.code?.length !== 6) {
@@ -77,10 +77,14 @@ const ForgetPasswordForm = () => {
         return;
       }
       if (verificationCode === values.code) {
-        startTransition(() => {
-          deletePasswordResetTokenById(values.email).then(() => {
+        setIsPending(true);
+        deletePasswordResetTokenById(values.email).then((data) => {
+          if (!data) {
+            showErrorToast();
+          } else {
             setStage(2);
-          });
+          }
+          setIsPending(false);
         });
       } else {
         showErrorToast("Incorrect code");
@@ -95,15 +99,15 @@ const ForgetPasswordForm = () => {
           message: "Passwords do not match",
         });
       else {
-        startTransition(() => {
-          updatePassword(values.email, values.password).then((data) => {
-            if (!data) {
-              showErrorToast();
-            } else {
-              router.push("/signin");
-              showSuccessToast("Password Changed");
-            }
-          });
+        setIsPending(true);
+        updatePassword(values.email, values.password).then((data) => {
+          if (!data) {
+            showErrorToast();
+          } else {
+            router.push("/signin");
+            showSuccessToast("Password Changed");
+          }
+          setIsPending(false);
         });
       }
     }

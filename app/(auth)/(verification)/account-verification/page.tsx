@@ -19,7 +19,6 @@ const page = async ({
 }) => {
   const filters = await searchParams;
   const token = filters.token ?? "";
-  console.log(token);
 
   if (!token) {
     redirect("/");

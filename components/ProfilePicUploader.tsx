@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { User } from "lucide-react";
 import { useUploadThing } from "@/lib/uploadthing";
@@ -19,7 +19,7 @@ const ProfilePicUploader = ({
 }) => {
   const { startUpload } = useUploadThing("imageUploader");
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   const { update } = useSession();
 
@@ -32,17 +32,16 @@ const ProfilePicUploader = ({
     const file = e.target.files[0] as File;
 
     if (file) {
-      startTransition(async () => {
+      try {
+        setIsPending(true);
         const resp = await startUpload([file]);
 
         if (!resp) {
-          return;
+          throw Error("Unable to upload file");
         }
         const { ufsUrl, key } = resp[0];
 
         const prevProfilePicKey = localStorage.getItem("profilePicKey");
-
-        console.log("PREV PROFILE KEY", prevProfilePicKey);
         if (prevProfilePicKey) {
           await deleteFileFromUploadthing(prevProfilePicKey);
         }
@@ -56,11 +55,15 @@ const ProfilePicUploader = ({
           setImage(ufsUrl);
           showSuccessToast("Profile Uploaded");
         } else {
-          showErrorToast();
+          throw Error("Something went wrong");
         }
 
         update();
-      });
+      } catch (error: any) {
+        showErrorToast(error.message);
+      } finally {
+        setIsPending(false);
+      }
     }
   };
 

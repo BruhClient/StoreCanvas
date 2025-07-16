@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useTransition } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -33,17 +33,17 @@ const UpdateUsernameButton = ({
 
   const { update } = useSession();
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const onSubmit = (values: UpdateUsernamePayload) => {
-    startTransition(() => {
-      updateUserById(userId, values).then((data) => {
-        if (!data) {
-          showErrorToast();
-        } else {
-          showSuccessToast("Username updated");
-          update();
-        }
-      });
+    setIsPending(true);
+    updateUserById(userId, values).then((data) => {
+      if (!data) {
+        showErrorToast();
+      } else {
+        showSuccessToast("Username updated");
+        update();
+      }
+      setIsPending(false);
     });
   };
 

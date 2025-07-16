@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useTransition } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -33,17 +33,17 @@ const SignUpForm = () => {
     },
   });
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const onSubmit = (values: SignUpPayload) => {
-    startTransition(() => {
-      signUpWithEmailAndPassword(values).then((data) => {
-        if (data.error) {
-          showErrorToast(data.error);
-        } else {
-          showSuccessToast(data.success);
-          form.reset();
-        }
-      });
+    setIsPending(true);
+    signUpWithEmailAndPassword(values).then((data) => {
+      if (data.error) {
+        showErrorToast(data.error);
+      } else {
+        showSuccessToast(data.success);
+        form.reset();
+      }
+      setIsPending(false);
     });
   };
 
