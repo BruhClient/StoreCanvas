@@ -35,7 +35,7 @@ export const getVerificationTokenByToken = async (token: string) => {
 
 export const generateVerificationToken = async (
   email: string,
-  emailReplaced?: string
+  emailReplaced?: string | null
 ) => {
   const token = uuidv4();
 

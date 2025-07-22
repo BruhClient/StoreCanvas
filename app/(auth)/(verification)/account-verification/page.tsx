@@ -26,6 +26,8 @@ const page = async ({
 
   let isExpired = false;
   let isVerified = false;
+  let emailReplaced = false;
+
   const verificationToken = await getVerificationTokenByToken(token);
 
   if (verificationToken) {
@@ -34,7 +36,8 @@ const page = async ({
 
     if (expiryDate <= currentTime) {
       const newVerificationToken = await generateVerificationToken(
-        verificationToken.identifier
+        verificationToken.identifier,
+        verificationToken.emailReplaced
       );
       await sendVerificationEmail(
         newVerificationToken.identifier,
@@ -42,9 +45,17 @@ const page = async ({
       );
       isExpired = true;
     } else {
-      await updateUserByEmail(verificationToken.identifier, {
-        emailVerified: currentTime,
-      });
+      if (verificationToken.emailReplaced) {
+        await updateUserByEmail(verificationToken.identifier, {
+          emailVerified: currentTime,
+          email: verificationToken.emailReplaced,
+        });
+      } else {
+        await updateUserByEmail(verificationToken.identifier, {
+          emailVerified: currentTime,
+        });
+      }
+
       deleteVerificationTokenByToken(verificationToken.token);
       isVerified = true;
     }

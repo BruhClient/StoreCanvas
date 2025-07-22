@@ -36,6 +36,7 @@ import {
 } from "@/server/actions/auth/passwordResetToken";
 import { sendPasswordResetEmail } from "@/server/actions/auth/mail";
 import { useRouter } from "next/navigation";
+import FormTextInput from "@/components/FormTextInput";
 const ForgetPasswordForm = () => {
   const form = useForm<ForgetPasswordPayload>({
     resolver: zodResolver(ForgetPasswordSchema),
@@ -128,41 +129,10 @@ const ForgetPasswordForm = () => {
           className="space-y-5"
         >
           {stage === 0 ? (
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-muted-foreground">Email</FormLabel>
-                  <div className="relative flex items-center">
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className="py-5 placeholder:font-semibold px-4"
-                        placeholder="you@example.com"
-                      />
-                    </FormControl>
-
-                    {form.formState.errors.email && (
-                      <CircleAlert
-                        className="absolute right-3 stroke-destructive"
-                        size={20}
-                      />
-                    )}
-                  </div>
-
-                  {form.formState.errors.email && (
-                    <MotionDiv
-                      className="text-sm text-destructive font-serif"
-                      variants={containerVariants}
-                      initial="hidden"
-                      animate="visible"
-                    >
-                      {form.formState.errors.email.message}
-                    </MotionDiv>
-                  )}
-                </FormItem>
-              )}
+            <FormTextInput
+              form={form}
+              fieldName="email"
+              placeholder="janedoe@gmail.com"
             />
           ) : stage === 1 ? (
             <FormField
@@ -197,83 +167,18 @@ const ForgetPasswordForm = () => {
             />
           ) : (
             <>
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="text-muted-foreground">
-                      New Password
-                    </FormLabel>
-                    <div className="relative flex items-center">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className="py-5 placeholder:font-semibold px-4"
-                          placeholder="•••••••"
-                          type="password"
-                        />
-                      </FormControl>
-
-                      {form.formState.errors.email && (
-                        <CircleAlert
-                          className="absolute right-3 stroke-destructive"
-                          size={20}
-                        />
-                      )}
-                    </div>
-
-                    {form.formState.errors.password && (
-                      <MotionDiv
-                        className="text-sm text-destructive font-serif"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        {form.formState.errors.password.message}
-                      </MotionDiv>
-                    )}
-                  </FormItem>
-                )}
+              <FormTextInput
+                form={form}
+                fieldName="password"
+                placeholder="*****"
+                type="password"
               />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="text-muted-foreground">
-                      Confirm Password
-                    </FormLabel>
-                    <div className="relative flex items-center">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className="py-5 placeholder:font-semibold px-4"
-                          placeholder="•••••••"
-                          type="password"
-                        />
-                      </FormControl>
 
-                      {form.formState.errors.confirmPassword && (
-                        <CircleAlert
-                          className="absolute right-3 stroke-destructive"
-                          size={20}
-                        />
-                      )}
-                    </div>
-
-                    {form.formState.errors.confirmPassword && (
-                      <MotionDiv
-                        className="text-sm text-destructive font-serif"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        {form.formState.errors.confirmPassword.message}
-                      </MotionDiv>
-                    )}
-                  </FormItem>
-                )}
+              <FormTextInput
+                form={form}
+                fieldName="confirmPassword"
+                placeholder="*****"
+                type="password"
               />
             </>
           )}

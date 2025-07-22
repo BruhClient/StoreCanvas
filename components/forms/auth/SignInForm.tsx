@@ -24,6 +24,7 @@ import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LOGIN_ROUTE } from "@/routes";
 import { useSession } from "next-auth/react";
+import FormTextInput from "@/components/FormTextInput";
 
 const SignInForm = () => {
   const form = useForm<SignInPayload>({
@@ -73,90 +74,25 @@ const SignInForm = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel className="text-muted-foreground">Email</FormLabel>
-                <div className="relative flex items-center">
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className="py-5 placeholder:font-semibold px-4"
-                      placeholder="you@example.com"
-                    />
-                  </FormControl>
-
-                  {form.formState.errors.email && (
-                    <CircleAlert
-                      className="absolute right-3 stroke-destructive"
-                      size={20}
-                    />
-                  )}
-                </div>
-
-                {form.formState.errors.email && (
-                  <MotionDiv
-                    className="text-sm text-destructive font-serif"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    {form.formState.errors.email.message}
-                  </MotionDiv>
-                )}
-              </FormItem>
-            )}
+          <FormTextInput
+            form={form}
+            fieldName="email"
+            placeholder="janedoe@gmail.com"
           />
-
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <div className="flex justify-between w-full">
-                  <FormLabel className="text-muted-foreground">
-                    Password
-                  </FormLabel>
-                  <Link
-                    href={"/forget-password"}
-                    className="text-xs font-medium cursor-pointer text-muted-foreground"
-                  >
-                    Forget Password
-                  </Link>
-                </div>
-
-                <div className="relative flex items-center">
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className="py-5 placeholder:font-semibold px-4"
-                      placeholder="•••••••"
-                      type="password"
-                    />
-                  </FormControl>
-
-                  {form.formState.errors.password && (
-                    <CircleAlert
-                      className="absolute right-3 stroke-destructive"
-                      size={20}
-                    />
-                  )}
-                </div>
-                {form.formState.errors.password && (
-                  <MotionDiv
-                    className="text-sm text-destructive font-serif"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    {form.formState.errors.password.message}
-                  </MotionDiv>
-                )}
-              </FormItem>
-            )}
-          />
+          <div>
+            <FormTextInput
+              form={form}
+              fieldName="password"
+              placeholder="*****"
+              type="password"
+            />
+            <Link
+              href={"/forget-password"}
+              className="text-sm text-muted-foreground"
+            >
+              Forget Password ?
+            </Link>
+          </div>
 
           {searchParams.get("error") && (
             <div className="text-sm flex items-center gap-2 font-semibold">

@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { SignUpPayload, SignUpSchema } from "@/schemas/auth/signup";
 import { signUpWithEmailAndPassword } from "@/server/actions/auth/signup";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
+import FormTextInput from "@/components/FormTextInput";
 
 const SignUpForm = () => {
   const form = useForm<SignUpPayload>({
@@ -67,119 +68,18 @@ const SignUpForm = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel className="text-muted-foreground">Email</FormLabel>
-                <div className="relative flex items-center">
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className="py-5 placeholder:font-semibold px-4"
-                      placeholder="you@example.com"
-                    />
-                  </FormControl>
-
-                  {form.formState.errors.email && (
-                    <CircleAlert
-                      className="absolute right-3 stroke-destructive"
-                      size={20}
-                    />
-                  )}
-                </div>
-
-                {form.formState.errors.email && (
-                  <MotionDiv
-                    className="text-sm text-destructive font-serif"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    {form.formState.errors.email.message}
-                  </MotionDiv>
-                )}
-              </FormItem>
-            )}
+          <FormTextInput
+            form={form}
+            fieldName="email"
+            placeholder="janedoe@gmail.com"
           />
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel className="text-muted-foreground">
-                  Username
-                </FormLabel>
-                <div className="relative flex items-center">
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className="py-5 placeholder:font-semibold px-4"
-                      placeholder="John Smith"
-                    />
-                  </FormControl>
+          <FormTextInput form={form} fieldName="name" placeholder="Jane Doe" />
 
-                  {form.formState.errors.email && (
-                    <CircleAlert
-                      className="absolute right-3 stroke-destructive"
-                      size={20}
-                    />
-                  )}
-                </div>
-
-                {form.formState.errors.name && (
-                  <MotionDiv
-                    className="text-sm text-destructive font-serif"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    {form.formState.errors.name.message}
-                  </MotionDiv>
-                )}
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel className="text-muted-foreground">
-                  Password
-                </FormLabel>
-
-                <div className="relative flex items-center">
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className="py-5 placeholder:font-semibold px-4"
-                      placeholder="•••••••"
-                      type="password"
-                    />
-                  </FormControl>
-
-                  {form.formState.errors.password && (
-                    <CircleAlert
-                      className="absolute right-3 stroke-destructive"
-                      size={20}
-                    />
-                  )}
-                </div>
-                {form.formState.errors.password && (
-                  <MotionDiv
-                    className="text-sm text-destructive font-serif"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    {form.formState.errors.password.message}
-                  </MotionDiv>
-                )}
-              </FormItem>
-            )}
+          <FormTextInput
+            form={form}
+            fieldName="password"
+            type="password"
+            placeholder="*****"
           />
 
           <Button className="w-full" size={"lg"} disabled={isPending}>

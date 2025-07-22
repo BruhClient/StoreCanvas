@@ -15,6 +15,15 @@ import { signOut } from "next-auth/react";
 import { LogOut, Settings } from "lucide-react";
 import { DEFAULT_ROUTE } from "@/routes";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import UserSettingsForm from "../forms/auth/UserSettingsForm";
 const UserButton = () => {
   const user = useSessionUser();
 
@@ -23,7 +32,7 @@ const UserButton = () => {
       <DropdownMenuTrigger>
         <UserAvatar imageUrl={user?.image} className="w-10 h-10" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className=" py-3 max-w-[300px] w-full">
+      <DropdownMenuContent className="max-w-[300px] w-full py-2">
         <div className="flex gap-5 items-center px-2">
           <UserAvatar imageUrl={user?.image} />
           <div>
@@ -32,13 +41,24 @@ const UserButton = () => {
           </div>
         </div>
 
-        <DropdownMenuSeparator className="my-3" />
+        <DropdownMenuSeparator className="my-2" />
 
-        <DropdownMenuItem asChild>
-          <Link href={"/settings"}>
-            <Settings /> Settings
-          </Link>
-        </DropdownMenuItem>
+        <Dialog>
+          <DialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <Settings /> Settings
+            </DropdownMenuItem>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Settings</DialogTitle>
+              <DialogDescription>
+                Configure user settings here
+              </DialogDescription>
+            </DialogHeader>
+            <UserSettingsForm />
+          </DialogContent>
+        </Dialog>
 
         <DropdownMenuItem
           className=""
