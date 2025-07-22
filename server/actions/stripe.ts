@@ -2,7 +2,7 @@
 
 import { pricingPlans } from "@/data/pricingPlans";
 import { auth } from "@/lib/auth";
-import { stripe } from "@/lib/stripe";
+import { stripe } from "@/lib/stripeClient";
 import { headers } from "next/headers";
 
 export async function createCheckout({ priceId }: { priceId: string }) {

@@ -1,5 +1,5 @@
 import { env } from "@/data/env/server";
-import { stripe } from "@/lib/stripe";
+import { stripe } from "@/lib/stripeClient";
 import { sendPaymentConfirmationEmail } from "@/server/actions/auth/mail";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
