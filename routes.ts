@@ -4,7 +4,7 @@ export const AUTH_ROUTES = ["/signin", "/signup", "/forget-password"];
 
 export const DEFAULT_ROUTE = "/";
 
-export const LOGIN_ROUTE = "/dashboard";
+export const LOGIN_ROUTE = "/store";
 
 export const UPLOADTHING_PREFIX = "/api/uploadthing";
 

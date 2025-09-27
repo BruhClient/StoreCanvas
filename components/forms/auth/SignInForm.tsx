@@ -4,19 +4,10 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignInPayload, SignInSchema } from "@/schemas/auth/signin";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CircleAlert, TriangleAlert } from "lucide-react";
-import { MotionDiv } from "@/components/Motion";
-import { containerVariants } from "@/lib/variants";
+import { TriangleAlert } from "lucide-react";
 import OauthButtons from "@/components/auth/OauthButtons";
 import { Separator } from "@/components/ui/separator";
 import { signInWithEmailAndPassword } from "@/server/actions/auth/signin";
@@ -45,10 +36,10 @@ const SignInForm = () => {
     signInWithEmailAndPassword(values).then((data) => {
       if (data.error) {
         showErrorToast(data.error);
-      } else {
-        showSuccessToast(data.success);
+      } else if (data.success) {
+        showSuccessToast(data.success, data.description);
         update();
-        router.push(LOGIN_ROUTE);
+        router.push(data.url);
       }
       setIsPending(false);
     });

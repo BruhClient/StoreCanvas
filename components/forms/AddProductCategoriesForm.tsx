@@ -1,0 +1,104 @@
+"use client";
+
+import React, { useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { Button } from "../ui/button";
+import { Plus, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Input } from "../ui/input";
+import { AnimatePresence } from "framer-motion";
+import { MotionDiv } from "../Motion";
+import { containerVariants } from "@/lib/variants";
+import { CreateStorePayload } from "@/schemas/create-store";
+import { showErrorToast } from "@/lib/toast";
+
+const CategoriesForm = () => {
+  const { watch, setValue, trigger } = useFormContext<CreateStorePayload>();
+  const categories = watch("categories") || [];
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+
+  const addCategory = async () => {
+    const name = newCategory.trim();
+    if (!name) return;
+    if (categories.includes(name)) {
+      showErrorToast("Category already exists");
+      return;
+    }
+    setValue("categories", [...categories, name], { shouldValidate: true });
+    setNewCategory("");
+    setDialogOpen(false);
+    await trigger("categories");
+  };
+
+  const removeCategory = (index: number) => {
+    const removed = categories[index];
+    const updated = categories.filter((_, i) => i !== index);
+    setValue("categories", updated, { shouldValidate: true });
+
+    // remove category from products
+    const products = watch("products") || [];
+    const updatedProducts = products.map((p: any) => ({
+      ...p,
+      categories: p.categories.filter((c: string) => c !== removed),
+    }));
+    setValue("products", updatedProducts, { shouldValidate: true });
+  };
+
+  return (
+    <div className="space-y-5">
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild>
+          <Button className="w-full" variant={"outline"} size={"lg"}>
+            <Plus /> Add Category
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Add Category</DialogTitle>
+          <form className="w-full">
+            <Input
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder="Category Name"
+            />
+            <Button onClick={addCategory} className="mt-2 w-full" type="button">
+              Add
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <div className="flex flex-wrap gap-2">
+        <AnimatePresence>
+          {categories.map((cat, i) => (
+            <MotionDiv
+              key={cat}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full"
+            >
+              <span>{cat}</span>
+              <Button
+                size="icon"
+                type="button"
+                variant="ghost"
+                onClick={() => removeCategory(i)}
+              >
+                <X size={14} />
+              </Button>
+            </MotionDiv>
+          ))}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+export default CategoriesForm;

@@ -25,7 +25,7 @@ const OauthButtons = () => {
             variant={"outline"}
             className="py-5"
             key={provider}
-            onClick={() => signIn(provider, { callbackUrl: "/dashboard" })}
+            onClick={() => signIn(provider)}
           >
             <Icon /> Continue with {name}
           </Button>

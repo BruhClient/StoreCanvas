@@ -3,3 +3,29 @@ export const containerVariants = {
   visible: { opacity: 1 },
   exit: { opacity: 0 },
 };
+
+export const formTransitionVariants = {
+  hidden: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? 100 : -100, // slide in from right if next, left if prev
+    scale: 0.98,
+  }),
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: {
+      duration: 0.3,
+      ease: [0.4, 0, 0.2, 1],
+    },
+  },
+  exit: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? -100 : 100, // slide out to opposite side
+    scale: 0.98,
+    transition: {
+      duration: 0.3,
+      ease: [0.4, 0, 0.2, 1],
+    },
+  }),
+};

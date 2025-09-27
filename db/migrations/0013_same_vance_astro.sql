@@ -1,0 +1,1 @@
+ALTER TABLE "store" RENAME COLUMN "additonalFields" TO "additionalFields";

@@ -6,7 +6,9 @@ import { getUserByEmail } from "@/server/db/users";
 import { AuthError } from "next-auth";
 import { generateVerificationToken } from "./verificationToken";
 import { sendVerificationEmail } from "./mail";
-import { redirect } from "next/navigation";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { stores } from "@/db/schema";
 
 export const signInWithEmailAndPassword = async (data: SignInPayload) => {
   const validatedFields = SignInSchema.safeParse(data);
@@ -49,23 +51,41 @@ export const signInWithEmailAndPassword = async (data: SignInPayload) => {
       redirect: false,
     });
 
+    const userStores = await db.query.stores.findMany({
+      where: eq(stores.ownerId, existingUser.id),
+      orderBy: [desc(stores.createdAt)],
+      limit: 1,
+    });
+
+    // Redirect depending on store existence
+    if (userStores.length === 0) {
+      return {
+        success: `Hi ${existingUser.name} 👋`,
+        description: "Lets get you started right away...",
+        url: "/store/new",
+      };
+    }
+
     return {
-      success: "Successfully logged in",
+      success: `Welcome back ${existingUser.name} 👋`,
+      description: `Fetching you towards ${userStores[0].name}`,
+      url: `/store/${userStores[0].id}`,
     };
   } catch (error) {
-    console.log(error);
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return { error: "Invalid Credentials" };
+          return {
+            error: "Your credentials are invalid",
+          };
         default:
           return {
-            error: "Something went wrong",
+            error: "Please try again",
           };
       }
     }
     return {
-      error: "Something went wrong",
+      error: "Please try again",
     };
   }
 };

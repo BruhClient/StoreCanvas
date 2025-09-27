@@ -3,15 +3,15 @@ import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
 
-import { accounts, sessions, users, verificationTokens } from "@/db/schema";
+import { accounts, users, verificationTokens } from "@/db/schema";
 import { getUserById, updateUserById } from "@/server/db/users";
 import providers from "./providers";
 import { PricingPlanName } from "@/data/pricingPlans";
+import { getCurrentUserStores } from "@/server/db/stores";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
-    sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
   }),
   events: {
@@ -35,12 +35,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider !== "credentials") return true;
+
       const existingUser = await getUserById(user.id!);
       if (!existingUser?.emailVerified) {
         return false;
       }
+
       return true;
     },
+
     async jwt({ token }) {
       const userExists = await getUserById(token.sub ?? (token.id as string));
       if (!userExists) return token;

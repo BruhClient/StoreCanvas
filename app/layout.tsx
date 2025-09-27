@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import AppProvider from "@/components/AppProvider";
 import { PaymentSheet } from "@/components/pricing/PaymentSheet";
+import { PageTransition } from "@/components/PageTransition";
 const sans = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -26,15 +27,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <AppProvider>
-        <body
-          className={`${sans.variable} ${serif.variable} font-sans antialiased`}
-        >
+      <body
+        className={`${sans.variable} ${serif.variable} font-sans antialiased`}
+      >
+        <AppProvider>
           {children}
           <Toaster />
           <PaymentSheet />
-        </body>
-      </AppProvider>
+        </AppProvider>
+      </body>
     </html>
   );
 }
