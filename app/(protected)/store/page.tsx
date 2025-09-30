@@ -5,7 +5,6 @@ import React from "react";
 
 const StorePage = async () => {
   const stores = await getCurrentUserStores();
-  console.log(stores);
   if (!stores || stores.length === 0) {
     redirect("/store/new");
   } else {

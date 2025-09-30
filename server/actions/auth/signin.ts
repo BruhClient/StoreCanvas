@@ -69,7 +69,7 @@ export const signInWithEmailAndPassword = async (data: SignInPayload) => {
     return {
       success: `Welcome back ${existingUser.name} 👋`,
       description: `Fetching you towards ${userStores[0].name}`,
-      url: `/store/${userStores[0].id}`,
+      url: `/store/${userStores[0].name}`,
     };
   } catch (error) {
     if (error instanceof AuthError) {
