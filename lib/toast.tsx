@@ -25,11 +25,11 @@ export function showLoadingToast(
   title: string = "Loading",
   message: string = "Please wait while we process your request..."
 ) {
-  const id = toast.loading(<div className="pl-3">{title}</div>, {
+  const id = toast(<div className="pl-3">{title}</div>, {
     description: <div className="pl-3">{message}</div>,
-    icon: <Loader2 className="animate-spin text-blue-500" />,
+    icon: <Loader2 className="animate-spin text-foreground" />, // ✅ custom spinner
     duration: Infinity, // stays until dismissed or updated
   });
 
-  return id; // so you can dismiss or update it later
+  return id;
 }

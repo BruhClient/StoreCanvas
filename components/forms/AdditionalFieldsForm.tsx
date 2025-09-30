@@ -1,7 +1,6 @@
 import React from "react";
 import AddAdditionalFieldsDialog from "../AddAdditionalFieldsDialog";
-import { useFormContext } from "react-hook-form";
-import { CreateStorePayload } from "@/schemas/create-store";
+import { UseFormReturn } from "react-hook-form";
 import { showErrorToast } from "@/lib/toast";
 import { AnimatePresence } from "motion/react";
 import { MotionDiv } from "../Motion";
@@ -9,14 +8,19 @@ import { Button } from "../ui/button";
 import { Edit, Plus, X } from "lucide-react";
 import { containerVariants } from "@/lib/variants";
 import { CreateAdditionalFieldsPayload } from "@/schemas/create-addtional-fields";
+import { AdditionalFieldsPayload } from "@/schemas/store-steps";
 
-const AdditionalFieldsForm = () => {
-  const { setValue, watch } = useFormContext<CreateStorePayload>();
+const AdditionalFieldsForm = ({
+  form,
+}: {
+  form: UseFormReturn<AdditionalFieldsPayload>;
+}) => {
+  const { setValue, watch } = form;
   const additionalFields = watch("additionalFields");
   const removeField = (prompt: string) => {
     setValue(
       "additionalFields",
-      additionalFields.filter((field) => field.prompt !== prompt)
+      additionalFields?.filter((field) => field.prompt !== prompt)
     );
   };
 
@@ -29,7 +33,14 @@ const AdditionalFieldsForm = () => {
       showErrorToast("This prompt already exist");
       return;
     }
-    setValue("additionalFields", [...additionalFields, field]);
+
+    // Set limit for Fields
+
+    if (additionalFields.length >= 3) {
+      showErrorToast("You have reached your limit");
+    } else {
+      setValue("additionalFields", [...additionalFields, field]);
+    }
   };
 
   const editField = (
@@ -71,7 +82,7 @@ const AdditionalFieldsForm = () => {
       </AddAdditionalFieldsDialog>
       <div className="space-y-3">
         <AnimatePresence>
-          {additionalFields.map((field) => {
+          {additionalFields?.map((field) => {
             return (
               <MotionDiv
                 variants={containerVariants}

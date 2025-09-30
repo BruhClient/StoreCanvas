@@ -7,9 +7,9 @@ export const CreateProductSchema = z.object({
   images: z
     .array(z.any())
     .max(5, { message: "Each product can only have a maximum of 5 images" }),
-  categories: z
-    .array(z.string())
-    .min(1, { message: "Product must be linked to at least 1 category" }),
+  categories: z.array(z.string()),
+  description: z.string(),
+
   variants: z.array(VariantSchema),
 });
 export type CreateProductPayload = z.infer<typeof CreateProductSchema>;

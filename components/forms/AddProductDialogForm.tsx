@@ -15,6 +15,7 @@ import { DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { CreateStorePayload } from "@/schemas/create-store";
 import ProductInformationForm from "./ProductInformationForm";
 import ProductVariantsForm from "./ProductVariantsForm";
+import ProductDescriptionForm from "./ProductDescriptionForm";
 
 const steps = [
   {
@@ -22,6 +23,11 @@ const steps = [
     description:
       "Provide the essential details of your product, including its name, price, and an image to represent it.",
     fields: ["productName", "price", "images"],
+  },
+  {
+    title: "Product Description",
+    description: "Tell us more about your product.",
+    fields: ["description"],
   },
   {
     title: "Product Categories",
@@ -83,6 +89,7 @@ const AddProductDialogForm = ({
           categories: [],
           variants: [],
           images: [],
+          description: "",
         }); // adding
       }
     }
@@ -95,10 +102,12 @@ const AddProductDialogForm = ({
 
   const next = async () => {
     if (currentStep < steps.length - 1) {
+      //@ts-ignore
       const isValid = await form.trigger(steps[currentStep].fields);
 
       if (!isValid) {
         const fieldErrors = steps[currentStep].fields
+          //@ts-ignore
           .map((field) => form.getFieldState(field).error?.message)
           .filter(Boolean);
 
@@ -134,10 +143,16 @@ const AddProductDialogForm = ({
             <ProductInformationForm form={form} />
           </Step>
         )}
+
         {currentStep === 1 && (
+          <Step key={"step-1"}>
+            <ProductDescriptionForm form={form} />
+          </Step>
+        )}
+        {currentStep === 2 && (
           <Step key={"step-2"}>
             <div className="flex gap-2 flex-wrap">
-              {productCategories.map((category) => {
+              {productCategories?.map((category) => {
                 const selectedCategories = form.watch("categories");
                 const isSelected = selectedCategories.includes(category);
 
@@ -164,7 +179,7 @@ const AddProductDialogForm = ({
             </div>
           </Step>
         )}
-        {currentStep === 2 && (
+        {currentStep === 3 && (
           <Step key={"step-3"}>
             <ProductVariantsForm form={form} />
           </Step>

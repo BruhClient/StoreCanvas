@@ -9,19 +9,23 @@ import {
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { CreateStorePayload } from "@/schemas/create-store";
-import { eq } from "drizzle-orm";
+import { and, eq, InferSelectModel, sql } from "drizzle-orm";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export const getCurrentUserStores = async () => {
   const session = await auth();
-  console.log(session);
   if (!session) {
-    return null;
+    return [];
   } else {
-    const userStores = await db.query.stores.findMany({
-      where: eq(stores.ownerId, session.user.id),
-    });
+    try {
+      const userStores = await db.query.stores.findMany({
+        where: eq(stores.ownerId, session.user.id),
+      });
 
-    return userStores;
+      return userStores;
+    } catch {
+      return [];
+    }
   }
 };
 
@@ -40,6 +44,7 @@ export const createStore = async (values: CreateStorePayload) => {
     address,
     whatsapp,
     telegram,
+    description,
     allowComments,
     imageFile: imageUrl,
     products: updatedProducts,
@@ -56,6 +61,7 @@ export const createStore = async (values: CreateStorePayload) => {
           currency,
           address,
           whatsapp,
+          description,
           telegram,
           allowComments,
           imageUrl,
@@ -66,7 +72,14 @@ export const createStore = async (values: CreateStorePayload) => {
       // 2️⃣ Insert products
       if (updatedProducts && updatedProducts.length > 0) {
         for (const product of updatedProducts) {
-          const { productName, price, variants, categories } = product;
+          const {
+            productName,
+            price,
+            variants,
+            categories,
+            description,
+            images,
+          } = product;
 
           // Insert product
           const [newProduct] = await tx
@@ -74,8 +87,10 @@ export const createStore = async (values: CreateStorePayload) => {
             .values({
               name: productName,
               price,
+              images: images ? images : [],
               variants,
               storeId: newStore.id,
+              description,
               userId: session.user.id,
             })
             .returning({ id: products.id });
@@ -90,8 +105,10 @@ export const createStore = async (values: CreateStorePayload) => {
                   .select()
                   .from(productCategories)
                   .where(
-                    eq(productCategories.name, catName),
-                    eq(productCategories.storeId, newStore.id)
+                    and(
+                      eq(productCategories.name, catName),
+                      eq(productCategories.storeId, newStore.id)
+                    )
                   )
                   .limit(1);
 
@@ -132,8 +149,55 @@ export const createStore = async (values: CreateStorePayload) => {
 
 export const getStoreByName = async (name: string) => {
   const store = await db.query.stores.findFirst({
-    where: eq(stores.name, name),
+    where: eq(sql`LOWER(${stores.name})`, name.trim().toLowerCase()),
   });
 
   return store;
+};
+
+export const editStore = async (
+  id: string,
+  fields: Partial<InferSelectModel<typeof stores>>
+) => {
+  console.log(fields);
+  const session = await auth();
+
+  if (!session) {
+    return null;
+  }
+  try {
+    const store = await db
+      .update(stores)
+      .set(fields)
+      .where(and(eq(stores.id, id), eq(stores.ownerId, session.user.id)))
+      .returning();
+
+    return {
+      success: true,
+      data: store[0],
+      user: session.user.id,
+    };
+  } catch {
+    return null;
+  }
+};
+
+export const deleteStore = async (id: string) => {
+  const session = await auth();
+
+  if (!session) {
+    return null;
+  }
+  try {
+    const store = await db
+      .delete(stores)
+      .where(and(eq(stores.id, id), eq(stores.ownerId, session.user.id)))
+      .returning();
+    return {
+      success: true,
+      data: store,
+    };
+  } catch {
+    return null;
+  }
 };

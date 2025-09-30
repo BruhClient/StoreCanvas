@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import AddProductVariantDialog from "../AddProductVariantDialog";
 import { AnimatePresence } from "motion/react";
 import { MotionDiv } from "../Motion";

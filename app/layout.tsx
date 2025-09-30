@@ -4,7 +4,6 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import AppProvider from "@/components/AppProvider";
 import { PaymentSheet } from "@/components/pricing/PaymentSheet";
-import { PageTransition } from "@/components/PageTransition";
 const sans = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],

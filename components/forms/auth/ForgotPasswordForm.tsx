@@ -8,15 +8,10 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CircleAlert } from "lucide-react";
-import { MotionDiv } from "@/components/Motion";
-import { containerVariants } from "@/lib/variants";
 import { Separator } from "@/components/ui/separator";
 import {
   ForgetPasswordPayload,

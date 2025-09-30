@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
-import { CreateStorePayload } from "@/schemas/create-store";
+import { UseFormReturn } from "react-hook-form";
 import { Input } from "../ui/input";
 import { FormField, FormItem, FormControl, FormLabel } from "../ui/form";
 import {
@@ -12,24 +11,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { StoreInformationPayload } from "@/schemas/store-steps";
 
 const currencies = ["USD", "SGD", "MYR"];
 
-const StoreInformationForm = () => {
-  const { watch, setValue, formState, control } =
-    useFormContext<CreateStorePayload>();
+const StoreInformationForm = ({
+  form,
+}: {
+  form: UseFormReturn<StoreInformationPayload>;
+}) => {
+  const { watch, control, getValues } = form;
   const imageFile = watch("imageFile");
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(() => {
+    const initial = getValues("imageFile");
+    // if initial value is a string (URL), use it
+    return typeof initial === "string" ? initial : null;
+  });
 
   useEffect(() => {
-    if (!imageFile) return setPreview(null);
-    const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result as string);
-    reader.readAsDataURL(imageFile as File);
+    if (!imageFile) {
+      setPreview(null);
+      return;
+    }
+
+    // If it's a File object, read as data URL
+    if (imageFile instanceof File) {
+      const reader = new FileReader();
+      reader.onload = () => setPreview(reader.result as string);
+      reader.readAsDataURL(imageFile);
+    } else if (typeof imageFile === "string") {
+      // If it's a URL, just set it
+      setPreview(imageFile);
+    }
   }, [imageFile]);
 
   return (
-    <div className="space-y-5 ">
+    <div className="space-y-5">
       {/* Image Upload */}
       <FormField
         control={control}
@@ -72,7 +89,14 @@ const StoreInformationForm = () => {
           <FormItem>
             <FormLabel>Store Name</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Store Name" />
+              <Input
+                {...field}
+                placeholder="Store Name"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\s{2,}/g, " "); // replace 2+ spaces with single space
+                  field.onChange(value);
+                }}
+              />
             </FormControl>
           </FormItem>
         )}

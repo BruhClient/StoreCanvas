@@ -24,7 +24,7 @@ import {
   FormMessage,
   FormControl,
 } from "@/components/ui/form";
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { MotionDiv } from "./Motion";
 import { containerVariants } from "@/lib/variants";
@@ -47,7 +47,7 @@ export default function AddProductVariantDialog({
 }) {
   const [variantDialogOpen, setVariantDialogOpen] = useState(false);
   const [optionDialogOpen, setOptionDialogOpen] = useState(false);
-  console.log(values);
+
   const form = useForm<VariantPayload>({
     resolver: zodResolver(VariantSchema),
     defaultValues: values

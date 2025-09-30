@@ -1,117 +1,31 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
-import { CreateStorePayload } from "@/schemas/create-store";
-import { Input } from "../ui/input";
-import { FormField, FormItem, FormControl, FormLabel } from "../ui/form";
+import React from "react";
+import { UseFormReturn } from "react-hook-form";
+import { NullableInput } from "../NullableInput";
+import { StoreSocialsPayload } from "@/schemas/store-steps";
 
-import { Textarea } from "../ui/textarea";
-import { Switch } from "../ui/switch";
-import { cn } from "@/lib/utils";
-
-const StoreSocialsForm = () => {
-  const { watch, setValue, formState, control } =
-    useFormContext<CreateStorePayload>();
-
+const StoreSocialsForm = ({
+  form,
+}: {
+  form: UseFormReturn<StoreSocialsPayload>;
+}) => {
   return (
     <div className="space-y-5 ">
-      <FormField
-        control={control}
-        name="address"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel
-              className={cn(!field.value && "text-muted-foreground", "text-xs")}
-            >
-              Address
-            </FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
+      <NullableInput control={form.control} name="address" label="Address" />
+      <NullableInput
+        control={form.control}
         name="instagram"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel
-              className={cn(!field.value && "text-muted-foreground", "text-xs")}
-            >
-              Instagram
-            </FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-          </FormItem>
-        )}
+        label="Instagram"
       />
-      <FormField
-        control={control}
-        name="whatsapp"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel
-              className={cn(!field.value && "text-muted-foreground", "text-xs")}
-            >
-              WhatsApp
-            </FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
+      <NullableInput control={form.control} name="whatsapp" label="Whatsapp" />
+      <NullableInput
+        control={form.control}
         name="phoneNumber"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel
-              className={cn(!field.value && "text-muted-foreground", "text-xs")}
-            >
-              Phone Number
-            </FormLabel>
-            <FormControl>
-              <Input {...field} type="number" />
-            </FormControl>
-          </FormItem>
-        )}
+        label="Phone Number"
       />
-      <FormField
-        control={control}
-        name="telegram"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel
-              className={cn(!field.value && "text-muted-foreground", "text-xs")}
-            >
-              Telegram
-            </FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="tiktok"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel
-              className={cn(!field.value && "text-muted-foreground", "text-xs")}
-            >
-              TikTok
-            </FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-          </FormItem>
-        )}
-      />
+      <NullableInput control={form.control} name="telegram" label="Telegram" />
+      <NullableInput control={form.control} name="tiktok" label="Tiktok" />
     </div>
   );
 };

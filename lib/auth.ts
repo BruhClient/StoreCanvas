@@ -11,6 +11,7 @@ import { getCurrentUserStores } from "@/server/db/stores";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(db, {
     usersTable: users,
+
     accountsTable: accounts,
     verificationTokensTable: verificationTokens,
   }),

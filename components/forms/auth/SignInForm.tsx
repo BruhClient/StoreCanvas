@@ -13,7 +13,6 @@ import { Separator } from "@/components/ui/separator";
 import { signInWithEmailAndPassword } from "@/server/actions/auth/signin";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LOGIN_ROUTE } from "@/routes";
 import { useSession } from "next-auth/react";
 import FormTextInput from "@/components/FormTextInput";
 

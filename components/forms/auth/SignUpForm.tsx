@@ -3,19 +3,9 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CircleAlert } from "lucide-react";
-import { MotionDiv } from "@/components/Motion";
-import { containerVariants } from "@/lib/variants";
 import OauthButtons from "@/components/auth/OauthButtons";
 import { Separator } from "@/components/ui/separator";
 import { SignUpPayload, SignUpSchema } from "@/schemas/auth/signup";

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import type { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Plus, X } from "lucide-react";
 import {
@@ -17,8 +17,12 @@ import { containerVariants } from "@/lib/variants";
 import { CreateStorePayload } from "@/schemas/create-store";
 import { showErrorToast } from "@/lib/toast";
 
-const CategoriesForm = () => {
-  const { watch, setValue, trigger } = useFormContext<CreateStorePayload>();
+const CategoriesForm = ({
+  form,
+}: {
+  form: UseFormReturn<Pick<CreateStorePayload, "categories" | "products">>;
+}) => {
+  const { watch, setValue, trigger } = form;
   const categories = watch("categories") || [];
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");

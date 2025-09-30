@@ -26,7 +26,6 @@ const page = async ({
 
   let isExpired = false;
   let isVerified = false;
-  let emailReplaced = false;
 
   const verificationToken = await getVerificationTokenByToken(token);
 

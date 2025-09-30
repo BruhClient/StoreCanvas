@@ -11,8 +11,10 @@ import {
   pgEnum,
   real,
   jsonb,
+  json,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
+import { z } from "zod";
 
 // -------------------- Users --------------------
 export const userPlanEnum = pgEnum("userPlan", ["Free", "Pro", "Premium"]);
@@ -44,13 +46,14 @@ export const accounts = pgTable(
     type: text("type").$type<AdapterAccountType>().notNull(),
     provider: text("provider").notNull(),
     providerAccountId: text("providerAccountId").notNull(),
-    refreshToken: text("refreshToken"),
-    accessToken: text("accessToken"),
-    expiresAt: integer("expiresAt"),
-    tokenType: text("tokenType"),
+
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
     scope: text("scope"),
-    idToken: text("idToken"),
-    sessionState: text("sessionState"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
   },
   (account) => [
     {
@@ -103,8 +106,10 @@ export const stores = pgTable("store", {
   telegram: text("telegram"),
   phoneNumber: text("phoneNumber"),
   whatsapp: text("whatsapp"),
+  instagram: text("instagram"),
   description: text("description"),
   address: text("address"),
+  tiktok: text("tiktok"),
   additionalFields:
     jsonb("additionalFields").$type<CreateAdditionalFieldsPayload[]>(),
 });
@@ -162,6 +167,8 @@ export const products = pgTable("product", {
     .references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   price: real("price").notNull(),
+  images: json("images").$type<String[]>(),
+  description: text("description"),
   storeId: text("storeId")
     .notNull()
     .references(() => stores.id, { onDelete: "cascade" }),

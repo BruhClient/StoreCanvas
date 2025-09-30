@@ -1,6 +1,5 @@
 import React from "react";
 import { FormField, FormLabel, FormControl, FormItem } from "../ui/form";
-import FormRealInput from "../FormRealInput";
 import ImageUploadFormField from "../ImageUploadFormInput";
 import { showErrorToast } from "@/lib/toast";
 import { Input } from "../ui/input";

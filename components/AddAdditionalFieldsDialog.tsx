@@ -1,21 +1,14 @@
+//@ts-nocheck
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Plus, X } from "lucide-react";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -26,15 +19,7 @@ import {
   CreateAdditionalFieldsSchema,
   CreateAdditionalFieldsPayload,
 } from "@/schemas/create-addtional-fields";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "./ui/form";
-import { AnimatePresence, motion } from "framer-motion";
+import { Form, FormField, FormItem, FormControl, FormMessage } from "./ui/form";
 import { Label } from "./ui/label";
 import { Checkbox } from "./ui/checkbox";
 
@@ -54,7 +39,7 @@ const AddAdditionalFieldsDialog = ({
       prompt: "",
       type: "text",
       options: [],
-      allowMulitpleOptions: false,
+      allowMultipleOptions: false,
     },
   });
 
@@ -67,7 +52,7 @@ const AddAdditionalFieldsDialog = ({
           prompt: "",
           type: "text",
           options: [],
-          allowMulitpleOptions: false,
+          allowMultipleOptions: false,
         }); // adding -> fresh form
       }
     }

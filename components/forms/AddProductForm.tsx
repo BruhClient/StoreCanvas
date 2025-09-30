@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useFormContext, Controller } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Edit, Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
@@ -12,10 +12,13 @@ import { showErrorToast } from "@/lib/toast";
 import { CreateStorePayload } from "@/schemas/create-store";
 import AddProductDialogForm from "./AddProductDialogForm";
 import { usePrevious } from "@mantine/hooks";
-import { cn } from "@/lib/utils";
 
-const AddProductForm = () => {
-  const { watch, setValue } = useFormContext<CreateStorePayload>();
+const AddProductForm = ({
+  form,
+}: {
+  form: UseFormReturn<Pick<CreateStorePayload, "products" | "categories">>;
+}) => {
+  const { watch, setValue } = form;
   const products = watch("products") || [];
   const categories = watch("categories") || [];
 
@@ -111,11 +114,6 @@ const AddProductForm = () => {
                 <div className="text-xs text-muted-foreground">
                   ${product.price}
                 </div>
-                {product.categories.length === 0 && (
-                  <div className="text-xs text-red-400">
-                    Not linked to any category
-                  </div>
-                )}
               </div>
 
               <div className="flex gap-1">

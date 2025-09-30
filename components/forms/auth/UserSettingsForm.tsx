@@ -1,7 +1,6 @@
 import FormTextInput from "@/components/FormTextInput";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import useSessionUser from "@/hooks/use-session-user";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import {
   UserSettingsPayload,

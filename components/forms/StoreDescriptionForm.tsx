@@ -1,26 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
-import { CreateStorePayload } from "@/schemas/create-store";
-import { Input } from "../ui/input";
+import React from "react";
+import { UseFormReturn } from "react-hook-form";
+
 import { FormField, FormItem, FormControl, FormLabel } from "../ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+
 import { Textarea } from "../ui/textarea";
 import { Switch } from "../ui/switch";
 import { cn } from "@/lib/utils";
+import { StoreDescriptionPayload } from "@/schemas/store-steps";
 
-const currencies = ["USD", "SGD", "MYR"];
-
-const StoreDescriptionForm = () => {
-  const { watch, setValue, formState, control } =
-    useFormContext<CreateStorePayload>();
+const StoreDescriptionForm = ({
+  form,
+}: {
+  form: UseFormReturn<StoreDescriptionPayload>;
+}) => {
+  const { control } = form;
 
   return (
     <div className="space-y-5 ">
@@ -35,6 +30,11 @@ const StoreDescriptionForm = () => {
               <Textarea
                 className="min-h-[300px]"
                 {...field}
+                value={field.value ?? ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  field.onChange(val === "" ? null : val); // "" → null
+                }}
                 placeholder="Give us a brief description of your business..."
               />
             </FormControl>

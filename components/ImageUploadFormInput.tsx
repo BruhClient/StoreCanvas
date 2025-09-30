@@ -12,7 +12,7 @@ type ImageUploadFieldProps<T> = {
   name: keyof T;
   label?: string;
   maxFiles?: number;
-  form: { control: Control<T> };
+  form: { control: Control };
   onError?: (msg: string) => void;
 };
 
