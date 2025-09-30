@@ -4,11 +4,11 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import useSessionUser from "./use-session-user";
 import { DEFAULT_FETCH_LIMIT } from "@/data/contants";
 
-export const useProducts = () => {
+export const useProducts = (filters?: { category?: string; name?: string }) => {
   const user = useSessionUser();
 
   const query = useInfiniteQuery({
-    queryKey: ["decks", user?.id],
+    queryKey: ["products", user?.id],
     queryFn: async ({ pageParam = null }) => {
       const cursorParam = pageParam ? `&cursor=${pageParam}` : "";
       const res = await fetch(

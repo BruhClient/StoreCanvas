@@ -1,7 +1,11 @@
-"use client";
+import ProductFilter from "./_component/ProductFilter";
 
-const ProductsPage = async ({}: {}) => {
-  return <div>Products</div>;
+const ProductsPage = () => {
+  return (
+    <div>
+      <ProductFilter />
+    </div>
+  );
 };
 
 export default ProductsPage;

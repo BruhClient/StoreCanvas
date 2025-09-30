@@ -19,7 +19,11 @@ import { showErrorToast } from "@/lib/toast";
 
 const CategoriesForm = ({
   form,
+  add,
+  remove,
 }: {
+  add?: (name: string) => void;
+  remove?: (name: string) => void;
   form: UseFormReturn<Pick<CreateStorePayload, "categories" | "products">>;
 }) => {
   const { watch, setValue, trigger } = form;
@@ -33,6 +37,10 @@ const CategoriesForm = ({
     if (categories.includes(name)) {
       showErrorToast("Category already exists");
       return;
+    }
+
+    if (add) {
+      add(name);
     }
     setValue("categories", [...categories, name], { shouldValidate: true });
     setNewCategory("");
@@ -51,6 +59,10 @@ const CategoriesForm = ({
       ...p,
       categories: p.categories.filter((c: string) => c !== removed),
     }));
+    if (remove) {
+      remove(removed);
+    }
+
     setValue("products", updatedProducts, { shouldValidate: true });
   };
 
@@ -67,8 +79,11 @@ const CategoriesForm = ({
           <form className="w-full">
             <Input
               value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
               placeholder="Category Name"
+              onChange={(e) => {
+                const value = e.target.value.replace(/\s{2,}/g, " "); // replace 2+ spaces with single space
+                setNewCategory(value);
+              }}
             />
             <Button onClick={addCategory} className="mt-2 w-full" type="button">
               Add
