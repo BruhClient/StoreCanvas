@@ -76,7 +76,7 @@ const CategoriesForm = ({
         </DialogTrigger>
         <DialogContent>
           <DialogTitle>Add Category</DialogTitle>
-          <form className="w-full">
+          <form className="w-full" onSubmit={(e) => e.preventDefault()}>
             <Input
               value={newCategory}
               placeholder="Category Name"
@@ -93,7 +93,7 @@ const CategoriesForm = ({
       </Dialog>
 
       <div className="flex flex-wrap gap-2">
-        <AnimatePresence>
+        <AnimatePresence mode="sync">
           {categories.map((cat, i) => (
             <MotionDiv
               key={cat}
@@ -101,7 +101,7 @@ const CategoriesForm = ({
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full"
+              className="flex items-center gap-1 px-3 py-1 bg-muted rounded-full"
             >
               <span>{cat}</span>
               <Button

@@ -89,6 +89,7 @@ const AddProductForm = ({
         </DialogTrigger>
         <DialogContent>
           <AddProductDialogForm
+            productCategories={form.watch("categories")}
             updateProduct={addProduct}
             isDialogOpen={addDialogOpen}
           />
@@ -129,6 +130,7 @@ const AddProductForm = ({
                   </DialogTrigger>
                   <DialogContent>
                     <AddProductDialogForm
+                      productCategories={form.watch("categories")}
                       updateProduct={(updated) => updateProduct(updated, index)}
                       values={product}
                       isDialogOpen={editIndex === index}

@@ -27,6 +27,7 @@ const SearchSelect: React.FC<SearchSelectProps> = ({
   const [selected, setSelected] = useState(initialValue);
   const debouncedValue = useDebounce(selected, 500);
 
+  // 🔹 Sync value to URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
@@ -36,11 +37,24 @@ const SearchSelect: React.FC<SearchSelectProps> = ({
       params.delete(queryParamName);
     }
 
-    // Turn the params into a string and replace + with -
     const queryString = params.toString().replace(/\+/g, "-");
-
     router.replace(`${window.location.pathname}?${queryString}`);
   }, [debouncedValue, queryParamName, router]);
+
+  // 🔹 Reset if the selected value is no longer valid
+  useEffect(() => {
+    const current = searchParams.get(queryParamName);
+
+    if (current && !options.includes(current)) {
+      setSelected("no-filter");
+
+      const params = new URLSearchParams(window.location.search);
+      params.delete(queryParamName);
+      const queryString = params.toString().replace(/\+/g, "-");
+
+      router.replace(`${window.location.pathname}?${queryString}`);
+    }
+  }, [options, searchParams, queryParamName, router]);
 
   return (
     <Select value={selected} onValueChange={setSelected}>

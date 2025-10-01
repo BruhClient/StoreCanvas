@@ -6,7 +6,8 @@ import CategoryFilter from "./CategoryFilter";
 import { useQuery } from "@tanstack/react-query";
 import { useStore } from "@/context/store-context";
 import { getProductCategories } from "@/server/db/productCategories";
-import { InferSelectModel } from "drizzle-orm";
+import { Skeleton } from "@/components/ui/skeleton";
+import AddProductDialog from "./AddProductDialog";
 
 const ProductFilter = () => {
   const { store } = useStore();
@@ -23,15 +24,21 @@ const ProductFilter = () => {
   return (
     <div className="flex gap-1 flex-wrap">
       <SearchInput queryParamName="search" className="max-w-lg" />
-      {categories && (
+
+      {!categories ? (
+        <Skeleton className="h-9 w-16" />
+      ) : (
         <SearchSelect
           options={categories?.map((category) => category.name)}
           queryParamName="category"
         />
       )}
-      {categories !== null && !isLoading && (
+      {categories !== null && !isLoading ? (
         <CategoryFilter categories={categories!} />
+      ) : (
+        <Skeleton className="h-9 w-24" />
       )}
+      <AddProductDialog />
     </div>
   );
 };
