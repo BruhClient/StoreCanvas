@@ -1,5 +1,6 @@
 import UserButton from "@/components/auth/UserButton";
 import CreateStoreForm from "@/components/forms/CreateStoreForm";
+import { StoreSwitcher } from "@/components/sidebar/store-switcher";
 import React from "react";
 
 const NewStorePage = () => {

@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Control, useController } from "react-hook-form";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
+import { MotionDiv } from "./Motion";
 
 type ImageUploadFieldProps<T> = {
   name: keyof T;
@@ -40,23 +41,38 @@ export default function ImageUploadFormField<T>({
   const [previews, setPreviews] = useState<string[]>([]);
 
   useEffect(() => {
-    const urls = (value as File[]).map((file) => URL.createObjectURL(file));
+    // value can be File[] or string[]
+    if (!value) return;
+
+    const urls = (value as (File | string)[]).map((item) =>
+      typeof item === "string" ? item : URL.createObjectURL(item)
+    );
+
     setPreviews(urls);
 
-    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+    // revoke object urls for File objects only
+    return () => {
+      (value as (File | string)[]).forEach((item) => {
+        if (item instanceof File) {
+          URL.revokeObjectURL(item as any);
+        }
+      });
+    };
   }, [value]);
 
   const handleFiles = (files: FileList) => {
     const filesArray = Array.from(files);
-    if (filesArray.length + (value as File[]).length > maxFiles) {
+    const currentValue = (value as (File | string)[]) ?? [];
+
+    if (filesArray.length + currentValue.length > maxFiles) {
       onError?.(`Maximum ${maxFiles} images allowed`);
       return;
     }
-    onChange([...(value as File[]), ...filesArray]);
+    onChange([...currentValue, ...filesArray]);
   };
 
   const removeFile = (index: number) => {
-    const newFiles = (value as File[]).filter((_, i) => i !== index);
+    const newFiles = (value as (File | string)[]).filter((_, i) => i !== index);
     onChange(newFiles);
   };
 
@@ -73,7 +89,7 @@ export default function ImageUploadFormField<T>({
       <div className="flex flex-wrap gap-2 mt-2">
         <AnimatePresence>
           {previews.map((src, index) => (
-            <motion.div
+            <MotionDiv
               key={index}
               variants={containerVariants}
               initial="hidden"
@@ -94,7 +110,7 @@ export default function ImageUploadFormField<T>({
               >
                 <X size={14} />
               </Button>
-            </motion.div>
+            </MotionDiv>
           ))}
         </AnimatePresence>
       </div>

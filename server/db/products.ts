@@ -6,6 +6,14 @@ import { auth } from "@/lib/auth";
 import { CreateProductPayload } from "@/schemas/create-product";
 import { and, eq } from "drizzle-orm";
 
+function normalizeProduct(product: any) {
+  return {
+    ...product,
+    categories:
+      product.productToCategories?.map((pc: any) => pc.category.name) ?? [],
+  };
+}
+
 export const getProductsByStoreId = async (id: string) => {
   try {
     const storeProducts = await db.query.products.findMany({
@@ -13,13 +21,13 @@ export const getProductsByStoreId = async (id: string) => {
       with: {
         productToCategories: {
           with: {
-            category: true, // fetch the actual category object
+            category: true,
           },
         },
       },
     });
 
-    return storeProducts;
+    return storeProducts.map(normalizeProduct);
   } catch (error) {
     console.log(error);
     return null;
@@ -31,10 +39,8 @@ export const createProduct = async (
   storeId: string
 ) => {
   const session = await auth();
+  if (!session) return null;
 
-  if (!session) {
-    return null;
-  }
   try {
     const storeProduct = await db
       .insert(products)
@@ -44,9 +50,25 @@ export const createProduct = async (
         storeId,
         userId: session.user.id,
       })
-      .returning();
+      .returning({
+        // only fetch product fields
+        id: products.id,
+        name: products.name,
+        description: products.description,
+        price: products.price,
+      });
 
-    return storeProduct[0];
+    // fetch categories after insert
+    const fullProduct = await db.query.products.findFirst({
+      where: eq(products.id, storeProduct[0].id),
+      with: {
+        productToCategories: {
+          with: { category: true },
+        },
+      },
+    });
+
+    return normalizeProduct(fullProduct);
   } catch {
     return null;
   }
@@ -60,25 +82,31 @@ export const updateProduct = async (
   if (!session) return null;
 
   try {
-    const updated = await db
+    await db
       .update(products)
       .set({
         ...data,
-        name: data.productName, // normalize field
-        // assuming you have this column
+        name: data.productName,
       })
       .where(
         and(eq(products.id, productId), eq(products.userId, session.user.id))
-      )
-      .returning();
+      );
 
-    return updated[0];
+    const fullProduct = await db.query.products.findFirst({
+      where: eq(products.id, productId),
+      with: {
+        productToCategories: {
+          with: { category: true },
+        },
+      },
+    });
+
+    return fullProduct ? normalizeProduct(fullProduct) : null;
   } catch {
     return null;
   }
 };
 
-// DELETE
 export const deleteProduct = async (productId: string) => {
   const session = await auth();
   if (!session) return null;
@@ -91,7 +119,9 @@ export const deleteProduct = async (productId: string) => {
       )
       .returning();
 
-    return deleted[0];
+    if (!deleted[0]) return null;
+
+    return { ...deleted[0], categories: [] }; // categories gone after delete
   } catch {
     return null;
   }

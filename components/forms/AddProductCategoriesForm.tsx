@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { MotionDiv } from "../Motion";
 import { containerVariants } from "@/lib/variants";
 import { CreateStorePayload } from "@/schemas/create-store";

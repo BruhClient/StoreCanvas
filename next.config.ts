@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["mu9dfcs0bu.ufs.sh"],
+    domains: ["mu9dfcs0bu.ufs.sh", "utfs.io"],
   },
 };
 

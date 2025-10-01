@@ -71,13 +71,15 @@ const AddProductDialogForm = ({
 }) => {
   const form = useForm<CreateProductPayload>({
     resolver: zodResolver(CreateProductSchema),
-    defaultValues: {
-      productName: "",
-      price: 0,
-      categories: [],
-      variants: [],
-      images: [],
-    },
+    defaultValues: values
+      ? values
+      : {
+          productName: "",
+          price: 0,
+          categories: [],
+          variants: [],
+          images: [],
+        },
   });
 
   // Reset on open/close
@@ -125,17 +127,20 @@ const AddProductDialogForm = ({
     }
   };
 
-  const handleSubmit = async () => {
-    const product = form.getValues();
+  const handleSubmit = async (product: CreateProductPayload) => {
     updateProduct(product, !!values); // pass isEdit flag
   };
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle>{steps[currentStep].title}</DialogTitle>
-        <DialogDescription>{steps[currentStep].description}</DialogDescription>
-      </DialogHeader>
+      {!values && (
+        <DialogHeader>
+          <DialogTitle>{steps[currentStep].title}</DialogTitle>
+          <DialogDescription>
+            {steps[currentStep].description}
+          </DialogDescription>
+        </DialogHeader>
+      )}
       <Form {...form}>
         <AnimatePresence mode="wait">
           {currentStep === 0 && (
@@ -196,7 +201,7 @@ const AddProductDialogForm = ({
             <ChevronLeft />
           </Button>
           {currentStep >= steps.length - 1 ? (
-            <Button onClick={handleSubmit}>
+            <Button onClick={form.handleSubmit(handleSubmit)}>
               {values ? "Update Product" : "Add Product"}
             </Button>
           ) : (

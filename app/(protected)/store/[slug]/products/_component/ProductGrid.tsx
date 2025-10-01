@@ -17,7 +17,7 @@ const ProductGrid = () => {
     },
     enabled: !!store,
   });
-  console.log(data);
+
   if (!data) {
     return <div>Loading...</div>;
   }
