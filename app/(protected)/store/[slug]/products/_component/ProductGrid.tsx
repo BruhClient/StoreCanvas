@@ -1,39 +1,31 @@
 "use client";
 import ProductCard from "@/components/ProductCard";
+import { useStore } from "@/context/store-context";
 import { products } from "@/db/schema";
-import { useProducts } from "@/hooks/use-products";
-import { useIntersection } from "@mantine/hooks";
-import { InferSelectModel } from "drizzle-orm";
-import React, { useEffect, useRef } from "react";
+import { getProductsByStoreId } from "@/server/db/products";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
 
 const ProductGrid = () => {
-  const { isLoading, products, fetchNextPage, isFetching, hasNextPage } =
-    useProducts();
-  const lastFolderRef = useRef(null);
-  const { ref, entry } = useIntersection({
-    root: lastFolderRef.current,
-    threshold: 1,
+  const { store } = useStore();
+  const { data, isLoading } = useQuery({
+    queryKey: ["products", store.id],
+    queryFn: async () => {
+      const products = await getProductsByStoreId(store.id);
+
+      return products ?? [];
+    },
+    enabled: !!store,
   });
-
-  useEffect(() => {
-    if (entry?.isIntersecting && hasNextPage && !isFetching) {
-      fetchNextPage();
-    }
-  }, [entry]);
-
+  console.log(data);
+  if (!data) {
+    return <div>Loading...</div>;
+  }
   return (
-    <div className="grid grid-cols-3">
-      {products?.map((product, index) => {
-        if (index >= products.length - 1) {
-          return (
-            <div key={product.id} ref={ref}>
-              <ProductCard product={product} />
-            </div>
-          );
-        }
-        return <ProductCard key={product.id} product={product} />;
+    <div className="grid md:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-2">
+      {data?.map((product) => {
+        return <ProductCard product={product} key={product.id} />;
       })}
-      {isFetching && <div>HIIII</div>}
     </div>
   );
 };

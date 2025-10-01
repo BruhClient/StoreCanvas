@@ -6,25 +6,22 @@ import { auth } from "@/lib/auth";
 import { CreateProductPayload } from "@/schemas/create-product";
 import { and, eq } from "drizzle-orm";
 
-export const getProductsByStoreName = async (
-  name: string,
-  offset?: number,
-  limit?: number
-) => {
-  const session = await auth();
-
-  if (!session) {
-    return null;
-  }
+export const getProductsByStoreId = async (id: string) => {
   try {
     const storeProducts = await db.query.products.findMany({
-      where: and(eq(products.name, name), eq(products.userId, session.user.id)),
-      offset,
-      limit,
+      where: eq(products.storeId, id),
+      with: {
+        productToCategories: {
+          with: {
+            category: true, // fetch the actual category object
+          },
+        },
+      },
     });
 
     return storeProducts;
-  } catch {
+  } catch (error) {
+    console.log(error);
     return null;
   }
 };
@@ -43,13 +40,58 @@ export const createProduct = async (
       .insert(products)
       .values({
         ...product,
-        name: product.productName,
+        name: product.productName.trim(),
         storeId,
         userId: session.user.id,
       })
       .returning();
 
     return storeProduct[0];
+  } catch {
+    return null;
+  }
+};
+
+export const updateProduct = async (
+  productId: string,
+  data: Partial<CreateProductPayload>
+) => {
+  const session = await auth();
+  if (!session) return null;
+
+  try {
+    const updated = await db
+      .update(products)
+      .set({
+        ...data,
+        name: data.productName, // normalize field
+        // assuming you have this column
+      })
+      .where(
+        and(eq(products.id, productId), eq(products.userId, session.user.id))
+      )
+      .returning();
+
+    return updated[0];
+  } catch {
+    return null;
+  }
+};
+
+// DELETE
+export const deleteProduct = async (productId: string) => {
+  const session = await auth();
+  if (!session) return null;
+
+  try {
+    const deleted = await db
+      .delete(products)
+      .where(
+        and(eq(products.id, productId), eq(products.userId, session.user.id))
+      )
+      .returning();
+
+    return deleted[0];
   } catch {
     return null;
   }

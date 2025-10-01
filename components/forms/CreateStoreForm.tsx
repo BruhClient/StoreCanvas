@@ -151,7 +151,12 @@ const CreateStoreForm = () => {
       title: "Add Products",
       description:
         "Add the products you sell. Each product can be tied to one or more categories.",
-      component: AddProductForm,
+      component: (props: any) => (
+        <AddProductForm
+          {...props}
+          categories={productCategoriesForm.getValues("categories") || []}
+        />
+      ),
     },
     {
       title: "Additional Information",

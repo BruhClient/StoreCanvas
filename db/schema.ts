@@ -1,5 +1,5 @@
 import { CreateAdditionalFieldsPayload } from "@/schemas/create-addtional-fields";
-import { VariantOptionPayload, VariantPayload } from "@/schemas/create-variant";
+import { VariantPayload } from "@/schemas/create-variant";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -14,7 +14,6 @@ import {
   json,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
-import { z } from "zod";
 
 // -------------------- Users --------------------
 export const userPlanEnum = pgEnum("userPlan", ["Free", "Pro", "Premium"]);
@@ -36,7 +35,7 @@ export const userRelations = relations(users, ({ many }) => ({
   stores: many(stores),
 }));
 
-// -------------------- Accounts & Tokens --------------------
+// -------------------- Accounts --------------------
 export const accounts = pgTable(
   "account",
   {
@@ -46,7 +45,6 @@ export const accounts = pgTable(
     type: text("type").$type<AdapterAccountType>().notNull(),
     provider: text("provider").notNull(),
     providerAccountId: text("providerAccountId").notNull(),
-
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: integer("expires_at"),
@@ -64,6 +62,7 @@ export const accounts = pgTable(
   ]
 );
 
+// -------------------- Verification Tokens --------------------
 export const verificationTokens = pgTable(
   "verificationToken",
   {
@@ -72,13 +71,7 @@ export const verificationTokens = pgTable(
     expires: timestamp("expires", { mode: "date" }).notNull(),
     emailReplaced: text("emailReplaced"),
   },
-  (verificationToken) => [
-    {
-      compositePk: primaryKey({
-        columns: [verificationToken.identifier, verificationToken.token],
-      }),
-    },
-  ]
+  (vt) => [{ compositePk: primaryKey({ columns: [vt.identifier, vt.token] }) }]
 );
 
 export const codeVerificationTokens = pgTable("codeVerificationToken", {
@@ -92,31 +85,31 @@ export const stores = pgTable("store", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  currency: text("currency").notNull(),
   ownerId: text("ownerId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  currency: text("currency").notNull(),
   imageUrl: text("imageUrl"),
   createdAt: timestamp("createdAt", { mode: "date", withTimezone: true })
     .defaultNow()
     .notNull(),
-  name: text("name").notNull(),
   allowComments: boolean("allowComments").default(false),
   connectedStripeAccountId: text("connectedStripeAccountId"),
   telegram: text("telegram"),
   phoneNumber: text("phoneNumber"),
   whatsapp: text("whatsapp"),
   instagram: text("instagram"),
-  description: text("description"),
-  address: text("address"),
   tiktok: text("tiktok"),
+  address: text("address"),
+  description: text("description"),
   additionalFields:
     jsonb("additionalFields").$type<CreateAdditionalFieldsPayload[]>(),
 });
 
 export const storesRelations = relations(stores, ({ many, one }) => ({
-  products: many(products),
   user: one(users, { fields: [stores.ownerId], references: [users.id] }),
+  products: many(products),
   categories: many(storeCategories),
 }));
 
@@ -125,23 +118,22 @@ export const storeCategories = pgTable("store_categories", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  storeId: text("store_id")
+  storeId: text("storeId")
     .notNull()
     .references(() => stores.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
-  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+  createdAt: timestamp("createdAt", { mode: "date", withTimezone: true })
     .defaultNow()
     .notNull(),
 });
 
 export const storeCategoriesRelations = relations(
   storeCategories,
-  ({ one, many }) => ({
+  ({ one }) => ({
     store: one(stores, {
       fields: [storeCategories.storeId],
       references: [stores.id],
     }),
-    products: many(products), // optional
   })
 );
 
@@ -157,6 +149,16 @@ export const productCategories = pgTable("productCategory", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const productCategoriesRelations = relations(
+  productCategories,
+  ({ one }) => ({
+    store: one(stores, {
+      fields: [productCategories.storeId],
+      references: [stores.id],
+    }),
+  })
+);
+
 // -------------------- Products --------------------
 export const products = pgTable("product", {
   id: text("id")
@@ -165,17 +167,17 @@ export const products = pgTable("product", {
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  price: real("price").notNull(),
-  images: json("images").$type<String[]>(),
-  description: text("description"),
   storeId: text("storeId")
     .notNull()
     .references(() => stores.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  price: real("price").notNull(),
+  images: json("images").$type<string[]>(),
+  description: text("description"),
+  variants: jsonb("variants").$type<VariantPayload[]>(),
   createdAt: timestamp("createdAt", { mode: "date", withTimezone: true })
     .defaultNow()
     .notNull(),
-  variants: jsonb("variants").$type<VariantPayload[]>(),
 });
 
 // -------------------- Product ↔ Categories Junction Table --------------------
@@ -195,20 +197,24 @@ export const productToCategories = pgTable(
 );
 
 // -------------------- Relations --------------------
-export const productRelations = relations(products, ({ one }) => ({
+export const productRelations = relations(products, ({ one, many }) => ({
   store: one(stores, { fields: [products.storeId], references: [stores.id] }),
+  productToCategories: many(productToCategories), // junction table
 }));
 
-export const productCategoriesRelations = relations(
-  productCategories,
+export const productToCategoriesRelations = relations(
+  productToCategories,
   ({ one }) => ({
-    store: one(stores, {
-      fields: [productCategories.storeId],
-      references: [stores.id],
+    product: one(products, {
+      fields: [productToCategories.productId],
+      references: [products.id],
+    }),
+    category: one(productCategories, {
+      fields: [productToCategories.categoryId],
+      references: [productCategories.id],
     }),
   })
 );
-
 // -------------------- Orders --------------------
 export const orders = pgTable("order", {
   id: text("id")
@@ -219,5 +225,5 @@ export const orders = pgTable("order", {
     .references(() => stores.id, { onDelete: "cascade" }),
   customerName: text("customerName").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  extraFields: jsonb("extraFields").notNull().default("{}"), // dynamic fields
+  extraFields: jsonb("extraFields").notNull().default("{}"),
 });

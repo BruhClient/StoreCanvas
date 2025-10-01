@@ -1,18 +1,28 @@
-import { products } from "@/db/schema";
+import { productCategories, products } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardTitle } from "./ui/card";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
+import AddProductForm from "./forms/AddProductForm";
+import AddProductDialogForm from "./forms/AddProductDialogForm";
+import { useQueryClient } from "@tanstack/react-query";
+import { useStore } from "@/context/store-context";
 
 const ProductCard = ({
   product,
 }: {
   product: InferSelectModel<typeof products>;
 }) => {
-  console.log(product);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { store } = useStore();
+  const categories = queryClient.getQueryData([
+    "categories",
+    store.id,
+  ]) as InferSelectModel<typeof productCategories>[];
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Card className="rounded-2xl shadow-lg overflow-hidden hover:bg-muted cursor-pointer transition-all ease-in-out duration-200">
           <CardContent className="flex gap-3">
@@ -51,6 +61,11 @@ const ProductCard = ({
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>Hi</DialogTitle>
+        <AddProductDialogForm
+          isDialogOpen={isDialogOpen}
+          updateProduct={() => {}}
+          productCategories={categories.map((category) => category.name) ?? []}
+        />
       </DialogContent>
     </Dialog>
   );

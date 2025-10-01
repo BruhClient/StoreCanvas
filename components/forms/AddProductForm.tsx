@@ -15,12 +15,14 @@ import { usePrevious } from "@mantine/hooks";
 
 const AddProductForm = ({
   form,
+  categories,
 }: {
   form: UseFormReturn<Pick<CreateStorePayload, "products" | "categories">>;
+  categories: string[];
 }) => {
   const { watch, setValue } = form;
+
   const products = watch("products") || [];
-  const categories = watch("categories") || [];
 
   const prevCategories = usePrevious(categories);
 
@@ -89,7 +91,7 @@ const AddProductForm = ({
         </DialogTrigger>
         <DialogContent>
           <AddProductDialogForm
-            productCategories={form.watch("categories")}
+            productCategories={categories}
             updateProduct={addProduct}
             isDialogOpen={addDialogOpen}
           />

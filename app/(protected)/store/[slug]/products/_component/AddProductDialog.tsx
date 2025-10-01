@@ -4,10 +4,12 @@ import AddProductDialogForm from "@/components/forms/AddProductDialogForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useStore } from "@/context/store-context";
-import { productCategories } from "@/db/schema";
-import { showErrorToast } from "@/lib/toast";
+import { productCategories, products } from "@/db/schema";
+import { useProducts } from "@/hooks/useProducts";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { useUploadThing } from "@/lib/uploadthing";
 import { CreateProductPayload } from "@/schemas/create-product";
+import { deleteFileFromUploadthing } from "@/server/actions/uploadthing";
 import { createProduct } from "@/server/db/products";
 import { useQueryClient } from "@tanstack/react-query";
 import { InferSelectModel } from "drizzle-orm";
@@ -23,29 +25,28 @@ const AddProductDialog = () => {
     "categories",
     store.id,
   ]) as InferSelectModel<typeof productCategories>[];
-  const { startUpload } = useUploadThing("productImages");
+
+  const storeProducts = queryClient.getQueryData([
+    "products",
+    store.id,
+  ]) as InferSelectModel<typeof products>[];
+
+  const { create, update, remove, isPending } = useProducts(store.id);
+
   const updateProduct = async (
     product: CreateProductPayload,
     isEdit: boolean
   ) => {
-    let imageKeys = [];
-    try {
-      const res = await startUpload(product.images);
-
-      if (!res) {
-        throw Error("Failed to upload images");
-      }
-      imageKeys = res.map((image) => image.key);
-
-      await createProduct(
-        { ...product, images: res.map((image) => image.ufsUrl) },
-        store.id
-      );
-
-      await queryClient.invalidateQueries({ queryKey: ["products", store.id] });
-    } catch (error: any) {
-      showErrorToast(error.message);
+    if (
+      storeProducts
+        .map((product) => product.name)
+        .includes(product.productName.trim())
+    ) {
+      showErrorToast("Product already exist");
+      return;
     }
+    create(product);
+    setIsDialogOpen(false);
   };
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
