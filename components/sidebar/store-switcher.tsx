@@ -44,8 +44,8 @@ export function StoreSwitcher({}: {}) {
   });
 
   const router = useRouter();
-  const { store } = useStore();
-  if (isLoading || !data) {
+  const { store, isFetching } = useStore();
+  if (isLoading || !data || isFetching) {
     return <Skeleton className="w-full h-8" />;
   }
 
@@ -99,7 +99,7 @@ export function StoreSwitcher({}: {}) {
                 key={userStore.name}
                 onClick={() => {
                   console.log(userStore.name);
-                  if (store.name !== userStore.name) {
+                  if (store?.name !== userStore.name) {
                     router.push(`/store/${toSlug(userStore.name)}`);
                   }
                 }}

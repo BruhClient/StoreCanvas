@@ -36,7 +36,7 @@ const CategoryFilter = ({ categories }: { categories: string[] }) => {
   const addCategory = async (name: string) => {
     setProductCategories((prev) => [...prev, name]);
 
-    addProductCategory(name, store.id).then((data) => {
+    addProductCategory(name, store?.id!).then((data) => {
       if (!data) {
         setProductCategories((prev) =>
           prev.filter((category) => category !== name)
@@ -51,7 +51,7 @@ const CategoryFilter = ({ categories }: { categories: string[] }) => {
       prev.filter((category) => category !== name)
     );
 
-    deleteProductCategory(name, store.id).then((data) => {
+    deleteProductCategory(name, store?.id!).then((data) => {
       if (!data) {
         setProductCategories((prev) => [...prev, name]);
         showErrorToast();

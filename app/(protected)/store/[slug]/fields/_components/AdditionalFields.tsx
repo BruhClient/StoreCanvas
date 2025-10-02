@@ -20,7 +20,7 @@ const AdditionalFields = () => {
     //@ts-ignore
     resolver: zodResolver(AdditionalFieldsSchema),
     defaultValues: {
-      additionalFields: store.additionalFields ?? [],
+      additionalFields: store?.additionalFields ?? [],
     },
   });
 
@@ -35,7 +35,7 @@ const AdditionalFields = () => {
       //@ts-ignore
       setStore({ ...store, additionalFields: debouncedValues });
       try {
-        const data = await editStore(store.id, {
+        const data = await editStore(store?.id!, {
           //@ts-ignore
           additionalFields: debouncedValues,
         });
@@ -48,7 +48,7 @@ const AdditionalFields = () => {
     if (debouncedValues) {
       updateStore();
     }
-  }, [debouncedValues, store.id]);
+  }, [debouncedValues, store?.id]);
 
   return (
     <Form {...form}>

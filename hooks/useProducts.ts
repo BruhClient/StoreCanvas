@@ -1,6 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import type { InferSelectModel } from "drizzle-orm";
-import { products } from "@/db/schema";
 import { CreateProductPayload } from "@/schemas/create-product";
 import {
   createProduct,
@@ -13,8 +11,6 @@ import { useUploadThing } from "@/lib/uploadthing";
 import { toast } from "sonner";
 import { deleteFileFromUploadthing } from "@/server/actions/uploadthing";
 import { extractFileKey } from "@/lib/utils";
-
-type Product = InferSelectModel<typeof products>;
 
 export function useProducts(storeId: string) {
   const { products: storeProducts, setProducts } = useStore();

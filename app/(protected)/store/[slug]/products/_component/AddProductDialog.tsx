@@ -21,7 +21,7 @@ const AddProductDialog = () => {
 
   const { store, products, productCategories } = useStore();
 
-  const { create } = useProducts(store.id);
+  const { create } = useProducts(store?.id!);
 
   const updateProduct = async (
     product: CreateProductPayload,

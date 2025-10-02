@@ -7,7 +7,7 @@ import { useStore } from "@/context/store-context";
 import AddProductDialog from "./AddProductDialog";
 
 const ProductFilter = () => {
-  const { store, productCategories } = useStore();
+  const { productCategories } = useStore();
 
   return (
     <div className="flex gap-1 flex-wrap">

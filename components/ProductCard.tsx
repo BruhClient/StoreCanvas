@@ -35,7 +35,7 @@ export type ProductWithCategories = InferSelectModel<typeof products> & {
 const ProductCard = ({ product }: { product: ProductWithCategories }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { store, productCategories, products } = useStore();
-  const { update, remove } = useProducts(store.id);
+  const { update, remove } = useProducts(store?.id!);
 
   const updateProduct = (
     updatedProduct: CreateProductPayload,

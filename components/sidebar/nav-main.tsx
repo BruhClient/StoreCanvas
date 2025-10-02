@@ -65,10 +65,10 @@ export function NavMain() {
               key={button.name}
               onClick={() => {
                 if (button.default) {
-                  router.push(`/store/${toSlug(store.name)}`);
+                  router.push(`/store/${toSlug(store?.name!)}`);
                 } else {
                   router.push(
-                    `/store/${toSlug(store.name)}/${button.name.toLowerCase()}`
+                    `/store/${toSlug(store?.name!)}/${button.name.toLowerCase()}`
                   );
                 }
               }}

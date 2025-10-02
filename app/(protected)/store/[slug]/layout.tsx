@@ -23,25 +23,10 @@ const StoreDetailsLayout = async ({
   params: Promise<{ slug: string }>;
 }) => {
   const slug = (await params).slug;
-  const store = await getStoreByName(fromSlug(slug));
-  const session = await auth();
-
-  if (!store || store.ownerId !== session?.user.id) {
-    redirect("/store/new");
-  }
-
-  console.log("THIS IS CALLED");
-  const products = await getProductsByStoreId(store.id);
-
-  const productCategories = await getProductCategories(store.id);
 
   return (
     <SidebarProvider>
-      <StoreProvider
-        store={store}
-        products={products ?? []}
-        productCategories={productCategories ?? []}
-      >
+      <StoreProvider storeName={slug}>
         <AppSidebar />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
