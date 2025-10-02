@@ -98,9 +98,23 @@ export function StoreSwitcher({}: {}) {
               <DropdownMenuItem
                 key={userStore.name}
                 onClick={() => {
-                  console.log(userStore.name);
-                  if (store?.name !== userStore.name) {
-                    router.push(`/store/${toSlug(userStore.name)}`);
+                  if (!store || !userStore) return;
+
+                  // Only redirect if different store
+                  if (store.name !== userStore.name) {
+                    // Get the current path after /store/[storeName]
+                    const pathParts = window.location.pathname
+                      .split("/")
+                      .slice(3);
+                    // window.location.pathname: /store/currentStoreName/products
+                    // slice(3) removes ['', 'store', 'currentStoreName'], leaving ['products']
+
+                    const subPath = pathParts.join("/"); // 'products' or 'orders/123'
+
+                    // Push new URL with same subpath
+                    router.push(
+                      `/store/${toSlug(userStore.name)}${subPath ? "/" + subPath : ""}`
+                    );
                   }
                 }}
                 className="gap-2 p-2"

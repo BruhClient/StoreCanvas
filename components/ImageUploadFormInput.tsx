@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Control, useController } from "react-hook-form";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { MotionDiv } from "./Motion";
+import Image from "next/image";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 
 type ImageUploadFieldProps<T> = {
   name: keyof T;
@@ -87,30 +89,49 @@ export default function ImageUploadFormField<T>({
       />
 
       <div className="flex flex-wrap gap-2 mt-2">
-        <AnimatePresence>
+        <AnimatePresence mode="sync">
           {previews.map((src, index) => (
-            <MotionDiv
-              key={index}
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="relative w-24 h-24 border rounded overflow-hidden"
-            >
-              <img
-                src={src}
-                alt={`preview-${index}`}
-                className="object-cover w-full h-full"
-              />
-              <Button
-                size="icon"
-                variant="ghost"
-                className="absolute top-1 right-1"
-                onClick={() => removeFile(index)}
-              >
-                <X size={14} />
-              </Button>
-            </MotionDiv>
+            <Dialog key={index}>
+              <DialogTrigger asChild>
+                <MotionDiv
+                  key={index}
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="relative w-24 h-24 border rounded overflow-hidden cursor-pointer"
+                >
+                  <Image
+                    src={src}
+                    alt={`preview-${index}`}
+                    fill
+                    className="object-cover w-full h-full"
+                  />
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute top-1 right-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFile(index);
+                    }}
+                  >
+                    <X size={14} />
+                  </Button>
+                </MotionDiv>
+              </DialogTrigger>
+              <DialogContent className="flex w-full justify-center items-center">
+                <DialogTitle></DialogTitle>
+
+                <Image
+                  src={src}
+                  alt={`preview-${index}`}
+                  width={500}
+                  height={500}
+                  className="object-cover "
+                />
+              </DialogContent>
+            </Dialog>
           ))}
         </AnimatePresence>
       </div>

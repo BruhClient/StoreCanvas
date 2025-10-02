@@ -58,23 +58,21 @@ const ProductCard = ({ product }: { product: ProductWithCategories }) => {
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Card className="rounded-2xl shadow-lg overflow-hidden hover:bg-muted cursor-pointer transition-all ease-in-out duration-200">
-          <CardContent className="flex gap-3">
-            <div className="rounded-lg overflow-hidden border-2 w-40 h-40 flex items-center justify-center">
+          <CardContent className="flex gap-3 flex-col">
+            <div className="rounded-lg relative overflow-hidden border-2 w-full h-50 flex items-center justify-center">
               {product.images?.length === 0 ? (
                 <Image
-                  src={"/placeholder-image.png"}
+                  src="/placeholder-image.png"
                   alt={product.name}
-                  width={160}
-                  height={160}
-                  className="object-cover w-full h-full"
+                  fill
+                  className="object-cover rounded-md"
                 />
               ) : (
                 <Image
                   src={product.images![0] as string}
                   alt={product.name}
-                  width={160}
-                  height={160}
-                  className="object-cover w-full h-full"
+                  fill
+                  className="object-cover rounded-md"
                 />
               )}
             </div>
@@ -83,7 +81,7 @@ const ProductCard = ({ product }: { product: ProductWithCategories }) => {
                 <CardTitle>{product.name}</CardTitle>
                 <CardDescription>${product.price}</CardDescription>
               </div>
-              <div className="text-muted-foreground font-serif text-sm flex-1 line-clamp-2">
+              <div className="text-muted-foreground font-serif text-xs flex-1 line-clamp-2">
                 {product.description
                   ? product.description
                   : "no description..."}

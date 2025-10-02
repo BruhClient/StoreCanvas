@@ -12,12 +12,13 @@ import React, {
 import type { InferSelectModel } from "drizzle-orm";
 import { products, stores } from "@/db/schema";
 import { getStoreByName } from "@/server/db/stores";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fromSlug } from "@/lib/slug";
 import { useRouter } from "next/navigation";
 import { getProductsByStoreId } from "@/server/db/products";
 import { getProductCategories } from "@/server/db/productCategories";
 import useSessionUser from "@/hooks/use-session-user";
+import { isGelSchema } from "drizzle-orm/gel-core";
 
 export type Store = InferSelectModel<typeof stores>;
 
@@ -46,14 +47,12 @@ export function StoreProvider({
 }) {
   const router = useRouter();
   const user = useSessionUser();
-
-  const [store, setStore] = useState<Store | undefined>(undefined);
-  const [products, setProducts] = useState<ProductWithCategories[]>([]);
-  const [productCategories, setProductCategories] = useState<string[]>([]);
+  const queryClient = useQueryClient();
 
   const { data, isFetching } = useQuery({
     queryKey: ["storeContext", storeName],
     queryFn: async () => {
+      console.log("START");
       if (!user) return null;
 
       const store = await getStoreByName(fromSlug(storeName));
@@ -70,7 +69,30 @@ export function StoreProvider({
       return { store, products, categories };
     },
     enabled: !!user,
+    staleTime: 60 * 1000 * 5,
   });
+
+  const [store, setStore] = useState<Store | undefined>(
+    data?.store ?? undefined
+  );
+  const [products, setProducts] = useState<ProductWithCategories[]>(
+    data?.products ?? []
+  );
+  const [productCategories, setProductCategories] = useState<string[]>(
+    data?.categories ?? []
+  );
+
+  useEffect(() => {
+    if (data) {
+      queryClient.setQueryData(["storeContext", storeName], () => {
+        return {
+          store,
+          products,
+          productCategories,
+        };
+      });
+    }
+  }, [store, products, productCategories]);
 
   // Sync query data into local state
 

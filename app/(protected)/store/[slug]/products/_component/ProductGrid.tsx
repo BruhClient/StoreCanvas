@@ -27,7 +27,7 @@ const ProductGrid = () => {
   }, [products, search, category]);
 
   return (
-    <div className="grid md:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-2">
+    <div className="grid md:grid-cols-2 grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-2">
       {filteredProducts.map((product) => (
         <ProductCard product={product} key={product.id} />
       ))}

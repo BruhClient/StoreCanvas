@@ -128,9 +128,8 @@ export function useProducts(storeId: string) {
             ...existingProduct,
             ...data,
             images: finalImages,
-            updatedAt: new Date(),
           };
-
+          action.payload.data = optimisticUpdate;
           setProducts((prev) =>
             prev.map((p) => (p.id === productId ? optimisticUpdate : p))
           );

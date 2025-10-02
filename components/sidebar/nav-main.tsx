@@ -2,6 +2,7 @@
 
 import {
   Barcode,
+  ChartColumnIncreasing,
   ChevronRight,
   ListOrdered,
   LucideListOrdered,
@@ -26,7 +27,7 @@ import { useStore } from "@/context/store-context";
 const platformSidebarButtons = [
   {
     name: "Analytics",
-    icon: Store,
+    icon: ChartColumnIncreasing,
     default: true,
   },
   {
@@ -56,7 +57,6 @@ export function NavMain() {
   const { store } = useStore();
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
         {platformSidebarButtons.map((button) => {
           return (
