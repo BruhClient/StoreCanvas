@@ -23,7 +23,7 @@ const steps = [
     title: "Product Information",
     description:
       "Provide the essential details of your product, including its name, price, and an image to represent it.",
-    fields: ["productName", "price", "images"],
+    fields: ["name", "price", "images"],
   },
   {
     title: "Product Description",
@@ -74,7 +74,7 @@ const AddProductDialogForm = ({
     defaultValues: values
       ? values
       : {
-          productName: "",
+          name: "",
           price: 0,
           categories: [],
           variants: [],
@@ -89,7 +89,7 @@ const AddProductDialogForm = ({
         form.reset(values); // editing
       } else {
         form.reset({
-          productName: "",
+          name: "",
           price: 0,
           categories: [],
           variants: [],

@@ -1,25 +1,23 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import type { InferSelectModel } from "drizzle-orm";
 import { products } from "@/db/schema";
 import { CreateProductPayload } from "@/schemas/create-product";
-import { useUploadThing } from "@/lib/uploadthing";
 import {
   createProduct,
-  deleteProduct,
   updateProduct,
+  deleteProduct,
 } from "@/server/db/products";
-import { deleteFileFromUploadthing } from "@/server/actions/uploadthing";
-import {
-  showLoadingToast,
-  showErrorToast,
-  showSuccessToast,
-} from "@/lib/toast";
+import { showErrorToast, showLoadingToast } from "@/lib/toast";
+import { useStore } from "@/context/store-context";
+import { useUploadThing } from "@/lib/uploadthing";
 import { toast } from "sonner";
+import { deleteFileFromUploadthing } from "@/server/actions/uploadthing";
+import { extractFileKey } from "@/lib/utils";
 
 type Product = InferSelectModel<typeof products>;
 
 export function useProducts(storeId: string) {
-  const queryClient = useQueryClient();
+  const { products: storeProducts, setProducts } = useStore();
   const { startUpload } = useUploadThing("productImages");
 
   const mutation = useMutation({
@@ -27,124 +25,177 @@ export function useProducts(storeId: string) {
       type: "create" | "update" | "delete";
       payload: any;
     }) => {
-      let toastId: string | number | null = null;
+      switch (action.type) {
+        case "create": {
+          const product = await createProduct(action.payload, storeId);
+          if (!product) throw new Error("Failed to create product");
+          return product;
+        }
 
-      try {
-        // Only show loading toast for "create" (uploads)
-        if (action.type === "create") {
-          toastId = showLoadingToast("Saving product...", "Please wait...");
-
-          let imageUrls = action.payload.images;
-          let uploadedKeys: string[] = [];
-
-          if (imageUrls?.some((i: any) => i instanceof File)) {
-            const uploaded = await startUpload(imageUrls);
-            if (!uploaded) throw new Error("Failed to upload images");
-
-            uploadedKeys = uploaded.map((i) => i.key);
-            imageUrls = uploaded.map((i) => i.ufsUrl);
-          }
-
-          const product = await createProduct(
-            { ...action.payload, images: imageUrls },
-            storeId
+        case "update": {
+          const product = await updateProduct(
+            action.payload.productId,
+            action.payload.data
           );
-
-          if (!product && uploadedKeys.length) {
-            await Promise.allSettled(
-              uploadedKeys.map((k) => deleteFileFromUploadthing(k))
-            );
-          }
-
+          if (!product) throw new Error("Failed to update product");
           return product;
         }
 
-        // Update
-        if (action.type === "update") {
-          let imageUrls = action.payload.data.images;
-
-          const product = await updateProduct(action.payload.productId, {
-            ...action.payload.data,
-            images: imageUrls,
-          });
-
-          return product;
+        case "delete": {
+          const deleted = await deleteProduct(action.payload.productId);
+          if (!deleted) throw new Error("Failed to delete product");
+          return { id: action.payload.productId };
         }
 
-        // Delete
-        if (action.type === "delete") {
-          return await deleteProduct(action.payload.productId);
-        }
-
-        throw new Error("Invalid mutation type");
-      } finally {
-        if (toastId) toast.dismiss(toastId);
+        default:
+          throw new Error("Invalid mutation type");
       }
     },
 
-    // Optimistic updates: update cache immediately
     onMutate: async (action) => {
-      await queryClient.cancelQueries({ queryKey: ["products", storeId] });
+      const prevProducts = [...storeProducts];
 
-      const previous = queryClient.getQueryData<Product[]>([
-        "products",
-        storeId,
-      ]);
+      switch (action.type) {
+        case "create": {
+          let uploadedUrls: string[] = [];
+          let toastId: string | number | null = null;
 
-      queryClient.setQueryData<Product[]>(["products", storeId], (old = []) => {
-        switch (action.type) {
-          case "update":
-            return old.map((p) =>
-              p.id === action.payload.productId
-                ? { ...p, ...action.payload.data }
-                : p
-            );
-          case "delete":
-            return old.filter((p) => p.id !== action.payload.productId);
-          case "create":
-            return old; // will update in onSuccess
-          default:
-            return old;
+          if (action.payload.images?.length > 0) {
+            toastId = showLoadingToast("Uploading images...", "Please wait...");
+            try {
+              const uploaded = await startUpload(action.payload.images);
+              if (!uploaded) throw new Error("Failed to upload files");
+              uploadedUrls = uploaded.map((f) => f.ufsUrl);
+            } catch (err) {
+              toast.dismiss(toastId);
+              throw err;
+            } finally {
+              toast.dismiss(toastId);
+            }
+          }
+
+          action.payload = { ...action.payload, images: uploadedUrls };
+
+          const tempId = `temp-${Date.now()}`;
+          const optimisticProduct = {
+            id: tempId,
+            ...action.payload,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+
+          setProducts((prev) => [...prev, optimisticProduct]);
+
+          return { prevProducts, tempId };
         }
-      });
 
-      return { previous };
-    },
+        case "update": {
+          const { productId, data } = action.payload;
 
-    onError: (_err, action, ctx: any) => {
-      // rollback optimistic update
-      if (ctx?.previous) {
-        queryClient.setQueryData(["products", storeId], ctx.previous);
-      }
-      showErrorToast(_err?.message || "Something went wrong");
-    },
+          const existingProduct = storeProducts.find((p) => p.id === productId);
+          if (!existingProduct) return { prevProducts };
 
-    onSuccess: async (_data, action) => {
-      // only show success for create or image uploads
-      if (action.type === "create") {
-        showSuccessToast(
-          "Product created!",
-          "Your product was successfully added."
-        );
-      } else if (action.type === "update") {
-        const hasFileUploads = action.payload.data.images?.some(
-          (i: any) => i instanceof File
-        );
-        if (hasFileUploads) {
-          showSuccessToast(
-            "Product updated!",
-            "Your product was successfully updated."
+          const newFiles =
+            data.images?.filter((i: any) => i instanceof File) || [];
+          const existingUrls =
+            data.images?.filter((i: any) => typeof i === "string") || [];
+
+          let uploadedUrls: string[] = [];
+          let toastId: string | number | null = null;
+
+          if (newFiles.length > 0) {
+            toastId = showLoadingToast("Uploading images...", "Please wait...");
+            try {
+              const uploaded = await startUpload(newFiles);
+              if (!uploaded) throw new Error("Failed to upload files");
+              uploadedUrls = uploaded.map((f) => f.ufsUrl);
+            } catch (err) {
+              toast.dismiss(toastId);
+              throw err;
+            } finally {
+              toast.dismiss(toastId);
+            }
+          }
+
+          const removedImages = (existingProduct.images || []).filter(
+            (url: string) => !existingUrls.includes(url)
           );
-        }
-      } else if (action.type === "delete") {
-        showSuccessToast(
-          "Product deleted!",
-          "The product was successfully removed."
-        );
-      }
 
-      // refresh server data in the background
-      await queryClient.invalidateQueries({ queryKey: ["products", storeId] });
+          if (removedImages.length > 0) {
+            await Promise.allSettled(
+              removedImages.map((url) => deleteFileFromUploadthing(url))
+            );
+          }
+
+          const finalImages = [...existingUrls, ...uploadedUrls];
+          const optimisticUpdate = {
+            ...existingProduct,
+            ...data,
+            images: finalImages,
+            updatedAt: new Date(),
+          };
+
+          setProducts((prev) =>
+            prev.map((p) => (p.id === productId ? optimisticUpdate : p))
+          );
+
+          return { prevProducts, productId };
+        }
+
+        case "delete": {
+          const { productId } = action.payload;
+
+          // Find the product being deleted to know which images to remove later
+          const productToDelete = storeProducts.find((p) => p.id === productId);
+
+          // Optimistically remove the product from UI
+          setProducts((prev) => prev.filter((p) => p.id !== productId));
+
+          // Return previous state + images for rollback + later deletion
+          return {
+            prevProducts,
+            productId,
+            images: productToDelete?.images || [],
+          };
+        }
+
+        default:
+          return { prevProducts };
+      }
+    },
+
+    onSuccess: async (data, action, context) => {
+      if (!data) return;
+
+      switch (action.type) {
+        case "create":
+          setProducts((prev) =>
+            prev.map((p) => (p.id === context?.tempId ? data : p))
+          );
+
+          break;
+
+        case "update":
+          setProducts((prev) => prev.map((p) => (p.id === data.id ? data : p)));
+
+          break;
+
+        case "delete":
+          // Delete images after DB confirms deletion
+          if (context?.images?.length) {
+            await Promise.allSettled(
+              context.images.map((url) =>
+                deleteFileFromUploadthing(extractFileKey(url)!)
+              )
+            );
+          }
+          break;
+      }
+    },
+
+    onError: (err, _action, context) => {
+      if (context?.prevProducts) setProducts(context.prevProducts);
+      showErrorToast(err?.message || "Something went wrong");
     },
   });
 

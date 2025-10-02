@@ -18,33 +18,21 @@ import React, { useState } from "react";
 
 const AddProductDialog = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { store } = useStore();
-  // Get cached data for a specific query
-  const categories = queryClient.getQueryData([
-    "categories",
-    store.id,
-  ]) as InferSelectModel<typeof productCategories>[];
 
-  const storeProducts = queryClient.getQueryData([
-    "products",
-    store.id,
-  ]) as InferSelectModel<typeof products>[];
+  const { store, products, productCategories } = useStore();
 
-  const { create, update, remove, isPending } = useProducts(store.id);
+  const { create } = useProducts(store.id);
 
   const updateProduct = async (
     product: CreateProductPayload,
     isEdit: boolean
   ) => {
-    if (
-      storeProducts
-        .map((product) => product.name)
-        .includes(product.productName.trim())
-    ) {
+    if (products.map((product) => product.name).includes(product.name.trim())) {
       showErrorToast("Product already exist");
+
       return;
     }
+
     create(product);
     setIsDialogOpen(false);
   };
@@ -57,9 +45,7 @@ const AddProductDialog = () => {
       </DialogTrigger>
       <DialogContent>
         <AddProductDialogForm
-          productCategories={
-            categories ? categories.map((category) => category.name) : []
-          }
+          productCategories={productCategories}
           updateProduct={updateProduct}
           isDialogOpen={isDialogOpen}
         />

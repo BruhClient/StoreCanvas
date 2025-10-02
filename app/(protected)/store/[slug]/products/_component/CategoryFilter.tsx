@@ -31,38 +31,36 @@ import {
 import CategoriesForm from "@/components/forms/AddProductCategoriesForm";
 import { Form } from "@/components/ui/form";
 
-const CategoryFilter = ({
-  categories,
-}: {
-  categories: InferSelectModel<typeof productCategories>[];
-}) => {
-  const { store } = useStore();
-  const queryClient = useQueryClient();
+const CategoryFilter = ({ categories }: { categories: string[] }) => {
+  const { store, setProductCategories, setProducts } = useStore();
   const addCategory = async (name: string) => {
+    setProductCategories((prev) => [...prev, name]);
+
     addProductCategory(name, store.id).then((data) => {
       if (!data) {
-        showErrorToast();
-      } else {
-        queryClient.setQueryData(
-          ["categories", store.id],
-          (oldData: InferSelectModel<typeof productCategories>[]) => {
-            return [...oldData, data];
-          }
+        setProductCategories((prev) =>
+          prev.filter((category) => category !== name)
         );
+        showErrorToast();
       }
     });
   };
 
   const deleteCategory = (name: string) => {
+    setProductCategories((prev) =>
+      prev.filter((category) => category !== name)
+    );
+
     deleteProductCategory(name, store.id).then((data) => {
       if (!data) {
+        setProductCategories((prev) => [...prev, name]);
         showErrorToast();
       } else {
-        queryClient.setQueryData(
-          ["categories", store.id],
-          (oldData: InferSelectModel<typeof productCategories>[]) => {
-            return oldData.filter((category) => category.name !== name);
-          }
+        setProducts((prev) =>
+          prev.map((p) => ({
+            ...p,
+            categories: p.categories.filter((c) => c !== name),
+          }))
         );
       }
     });
@@ -71,7 +69,7 @@ const CategoryFilter = ({
   const form = useForm({
     resolver: zodResolver(ProductCategoriesSchema),
     defaultValues: {
-      categories: categories.map((categories) => categories.name),
+      categories,
     },
   });
 

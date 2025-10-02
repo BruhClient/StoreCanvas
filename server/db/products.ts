@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { productCategories, products, productToCategories } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { CreateProductPayload } from "@/schemas/create-product";
 import { and, eq } from "drizzle-orm";
@@ -46,7 +46,7 @@ export const createProduct = async (
       .insert(products)
       .values({
         ...product,
-        name: product.productName.trim(),
+
         storeId,
         userId: session.user.id,
       })
@@ -57,6 +57,34 @@ export const createProduct = async (
         description: products.description,
         price: products.price,
       });
+
+    const productId = storeProduct[0].id;
+
+    // 2️⃣ Insert categories if provided
+    if (product.categories && product.categories.length > 0) {
+      // Fetch IDs for each category name
+      const categoryIds = await Promise.all(
+        product.categories.map(async (nameOrId) => {
+          // If it's already an ID, return it; otherwise fetch by name
+          if (typeof nameOrId === "string") {
+            const cat = await db.query.productCategories.findFirst({
+              where: eq(productCategories.name, nameOrId),
+            });
+            if (!cat) throw new Error(`Category "${nameOrId}" does not exist`);
+            return cat.id;
+          }
+          return nameOrId;
+        })
+      );
+
+      // Insert links
+      const categoryLinks = categoryIds.map((categoryId) => ({
+        productId,
+        categoryId,
+      }));
+
+      await db.insert(productToCategories).values(categoryLinks);
+    }
 
     // fetch categories after insert
     const fullProduct = await db.query.products.findFirst({
@@ -69,29 +97,65 @@ export const createProduct = async (
     });
 
     return normalizeProduct(fullProduct);
-  } catch {
+  } catch (error) {
+    console.log(error);
     return null;
   }
 };
 
 export const updateProduct = async (
   productId: string,
-  data: Partial<CreateProductPayload>
+  data: Partial<CreateProductPayload> & { categories?: string[] } // categories are productCategory IDs
 ) => {
+  console.log("DATA", data);
+
   const session = await auth();
   if (!session) return null;
 
   try {
-    await db
-      .update(products)
-      .set({
-        ...data,
-        name: data.productName,
-      })
-      .where(
-        and(eq(products.id, productId), eq(products.userId, session.user.id))
-      );
+    // 1️⃣ Update the main product fields (excluding categories)
+    const { categories, ...productData } = data;
 
+    if (Object.keys(productData).length > 0) {
+      await db
+        .update(products)
+        .set(productData)
+        .where(
+          and(eq(products.id, productId), eq(products.userId, session.user.id))
+        );
+    }
+
+    // 2️⃣ Handle categories if provided
+    if (categories) {
+      // Delete old links
+      await db
+        .delete(productToCategories)
+        .where(eq(productToCategories.productId, productId));
+
+      // Insert new links
+      if (categories.length > 0) {
+        // Fetch the IDs of the categories by name
+        const categoryRecords = await Promise.all(
+          categories.map(async (name) => {
+            const cat = await db.query.productCategories.findFirst({
+              where: eq(productCategories.name, name),
+            });
+            if (!cat) throw new Error(`Category "${name}" does not exist`);
+            return cat.id;
+          })
+        );
+
+        // Insert links into productToCategories
+        const newLinks = categoryRecords.map((categoryId) => ({
+          productId,
+          categoryId,
+        }));
+
+        await db.insert(productToCategories).values(newLinks);
+      }
+    }
+
+    // 3️⃣ Return the full updated product including categories
     const fullProduct = await db.query.products.findFirst({
       where: eq(products.id, productId),
       with: {
@@ -102,7 +166,8 @@ export const updateProduct = async (
     });
 
     return fullProduct ? normalizeProduct(fullProduct) : null;
-  } catch {
+  } catch (err) {
+    console.error(err);
     return null;
   }
 };

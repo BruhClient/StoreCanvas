@@ -11,7 +11,7 @@ export const getProductCategories = async (storeId: string) => {
       where: eq(productCategories.storeId, storeId),
     });
 
-    return categories ?? [];
+    return categories.map((category) => category.name);
   } catch {
     return null;
   }

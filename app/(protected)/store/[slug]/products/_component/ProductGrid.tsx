@@ -1,31 +1,36 @@
 "use client";
+
 import ProductCard from "@/components/ProductCard";
 import { useStore } from "@/context/store-context";
-import { products } from "@/db/schema";
-import { getProductsByStoreId } from "@/server/db/products";
-import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 
 const ProductGrid = () => {
-  const { store } = useStore();
-  const { data, isLoading } = useQuery({
-    queryKey: ["products", store.id],
-    queryFn: async () => {
-      const products = await getProductsByStoreId(store.id);
+  const { products } = useStore();
+  const searchParams = useSearchParams();
 
-      return products ?? [];
-    },
-    enabled: !!store,
-  });
+  const search = searchParams.get("search")?.toLowerCase() || "";
+  const category = searchParams.get("category")?.toLowerCase() || "";
 
-  if (!data) {
-    return <div>Loading...</div>;
-  }
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+
+    return products.filter((product) => {
+      const matchesSearch =
+        !search || product.name.toLowerCase().includes(search);
+
+      const matchesCategory =
+        !category || product.categories.includes(category);
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, search, category]);
+
   return (
     <div className="grid md:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-2">
-      {data?.map((product) => {
-        return <ProductCard product={product} key={product.id} />;
-      })}
+      {filteredProducts.map((product) => (
+        <ProductCard product={product} key={product.id} />
+      ))}
     </div>
   );
 };

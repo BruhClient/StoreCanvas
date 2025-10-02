@@ -72,20 +72,14 @@ export const createStore = async (values: CreateStorePayload) => {
       // 2️⃣ Insert products
       if (updatedProducts && updatedProducts.length > 0) {
         for (const product of updatedProducts) {
-          const {
-            productName,
-            price,
-            variants,
-            categories,
-            description,
-            images,
-          } = product;
+          const { name, price, variants, categories, description, images } =
+            product;
 
           // Insert product
           const [newProduct] = await tx
             .insert(products)
             .values({
-              name: productName,
+              name,
               price,
               images: images ? images : [],
               variants,

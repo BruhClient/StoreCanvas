@@ -9,7 +9,7 @@ const ProductInformationForm = ({ form }: { form: any }) => {
     <>
       <FormField
         control={form.control}
-        name={"productName"}
+        name={"name"}
         render={({ field }) => (
           <FormItem className="space-y-1">
             <FormLabel>Product Name</FormLabel>

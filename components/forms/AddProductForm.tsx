@@ -55,10 +55,7 @@ const AddProductForm = ({
 
   const addProduct = (product: any) => {
     if (
-      products.find(
-        (addedProduct) =>
-          addedProduct.productName === product.productName.trim()
-      )
+      products.find((addedProduct) => addedProduct.name === product.name.trim())
     ) {
       showErrorToast("Product already exists");
       return;
@@ -103,7 +100,7 @@ const AddProductForm = ({
         <AnimatePresence mode="sync">
           {products.map((product, index) => (
             <MotionDiv
-              key={product.productName}
+              key={product.name}
               variants={containerVariants}
               initial="hidden"
               animate="visible"
@@ -113,7 +110,7 @@ const AddProductForm = ({
               }
             >
               <div className="flex flex-col items-start">
-                <div className="font-bold text-sm">{product.productName}</div>
+                <div className="font-bold text-sm">{product.name}</div>
                 <div className="text-xs text-muted-foreground">
                   ${product.price}
                 </div>
