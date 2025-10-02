@@ -185,6 +185,7 @@ const CreateStoreForm = () => {
         const existing = await getStoreByName(
           storeInfoForm.getValues("storeName")
         );
+
         toast.dismiss(id);
         if (existing) {
           showErrorToast("Store name is already taken");

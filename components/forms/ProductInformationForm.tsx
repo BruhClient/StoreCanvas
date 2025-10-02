@@ -14,7 +14,7 @@ const ProductInformationForm = ({ form }: { form: any }) => {
           <FormItem className="space-y-1">
             <FormLabel>Product Name</FormLabel>
             <FormControl>
-              <Input {...field} placeholder={"Product Name"} />
+              <Input {...field} />
             </FormControl>
           </FormItem>
         )}

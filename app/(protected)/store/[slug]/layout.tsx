@@ -13,8 +13,6 @@ import { auth } from "@/lib/auth";
 
 import { Separator } from "@/components/ui/separator";
 import StoreBreadcrumb from "@/components/sidebar/store-breadcrumb";
-import { getProductsByStoreId } from "@/server/db/products";
-import { getProductCategories } from "@/server/db/productCategories";
 const StoreDetailsLayout = async ({
   children,
   params,

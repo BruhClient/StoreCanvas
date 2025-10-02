@@ -133,8 +133,8 @@ export function StoreSwitcher({}: {}) {
                     </div>
                   )}
                 </div>
+                <div className="line-clamp-1">{userStore.name}</div>
 
-                {userStore.name}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}

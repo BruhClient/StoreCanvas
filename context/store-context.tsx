@@ -19,6 +19,7 @@ import { getProductsByStoreId } from "@/server/db/products";
 import { getProductCategories } from "@/server/db/productCategories";
 import useSessionUser from "@/hooks/use-session-user";
 import { isGelSchema } from "drizzle-orm/gel-core";
+import { Loader2 } from "lucide-react";
 
 export type Store = InferSelectModel<typeof stores>;
 
@@ -56,6 +57,7 @@ export function StoreProvider({
       if (!user) return null;
 
       const store = await getStoreByName(fromSlug(storeName));
+
       if (!store || store.ownerId !== user.id) {
         router.push("/store/new");
         return null;
@@ -108,7 +110,14 @@ export function StoreProvider({
         setProductCategories,
       }}
     >
-      {isFetching ? <div>Fetching {storeName}</div> : children}
+      {isFetching ? (
+        <div className="flex w-full justify-center items-center flex-col gap-3">
+          <Loader2 size={30} className="animate-spin text-muted-foreground" />
+          <div className="font-semibold">Fetching store data...</div>
+        </div>
+      ) : (
+        children
+      )}
     </StoreContext.Provider>
   );
 }
