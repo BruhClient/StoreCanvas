@@ -86,7 +86,7 @@ export function StoreProvider({
         setProductCategories,
       }}
     >
-      {children}
+      <>{isFetching ? <div>Fetching {storeName}</div> : { children }}</>
     </StoreContext.Provider>
   );
 }
