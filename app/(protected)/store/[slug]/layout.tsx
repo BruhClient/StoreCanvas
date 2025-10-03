@@ -4,27 +4,52 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { getStoreByName } from "@/server/db/stores";
-import { fromSlug } from "@/lib/slug";
-import { redirect } from "next/navigation";
+import { StoreProvider, StoreContextValue } from "@/context/store-context";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import { StoreProvider } from "@/context/store-context";
-import { auth } from "@/lib/auth";
-
 import { Separator } from "@/components/ui/separator";
 import StoreBreadcrumb from "@/components/sidebar/store-breadcrumb";
-const StoreDetailsLayout = async ({
+import { auth } from "@/lib/auth";
+import { fromSlug } from "@/lib/slug";
+import { getStoreByName } from "@/server/db/stores";
+import { getProductsByStoreId } from "@/server/db/products";
+import { getProductCategories } from "@/server/db/productCategories";
+import { redirect } from "next/navigation";
+
+interface StoreDetailsLayoutProps {
+  children: React.ReactNode;
+  params: { slug: string };
+}
+
+export const StoreDetailsLayout = async ({
   children,
   params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ slug: string }>;
-}) => {
+}: StoreDetailsLayoutProps) => {
   const slug = (await params).slug;
+  const session = await auth();
+
+  if (!session) {
+    redirect("/signin");
+  }
+  // fetch everything server-side
+  const store = await getStoreByName(fromSlug(slug));
+  if (!store || store.ownerId !== session.user.id) {
+    throw new Error("Store not found or unauthorized"); // optionally redirect
+  }
+
+  const [products, categories] = await Promise.all([
+    getProductsByStoreId(store.id),
+    getProductCategories(store.id),
+  ]);
+
+  const initialData = {
+    store,
+    products: products ?? [],
+    productCategories: categories ?? [],
+  };
 
   return (
     <SidebarProvider>
-      <StoreProvider storeName={slug}>
+      <StoreProvider initialData={initialData}>
         <AppSidebar />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">

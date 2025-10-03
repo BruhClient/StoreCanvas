@@ -27,8 +27,8 @@ const StoreSettingsPage = () => {
   const form = useForm<EditStorePayload>({
     resolver: zodResolver(EditStoreSchema),
     defaultValues: {
-      storeName: store.name,
-      imageFile: store.imageUrl,
+      storeName: store?.name,
+      imageFile: store?.imageUrl,
       ...store,
     },
   });
