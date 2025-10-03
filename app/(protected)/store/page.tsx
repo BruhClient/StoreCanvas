@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import React from "react";
 
 const StorePage = async () => {
-  const stores = await getCurrentUserStores();
+  const stores = await getCurrentUserStores(1);
   if (!stores || stores.length === 0) {
     redirect("/store/new");
   } else {

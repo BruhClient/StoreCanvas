@@ -12,7 +12,7 @@ import { CreateStorePayload } from "@/schemas/create-store";
 import { and, eq, InferSelectModel, sql } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
 
-export const getCurrentUserStores = async () => {
+export const getCurrentUserStores = async (limit?: number) => {
   const session = await auth();
   if (!session) {
     return [];
@@ -20,6 +20,7 @@ export const getCurrentUserStores = async () => {
     try {
       const userStores = await db.query.stores.findMany({
         where: eq(stores.ownerId, session.user.id),
+        limit,
       });
 
       return userStores;

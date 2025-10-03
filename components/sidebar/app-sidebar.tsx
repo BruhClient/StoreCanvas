@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 
 import { NavMain } from "@/components/sidebar/nav-main";
@@ -18,9 +16,7 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {};
 export function AppSidebar({ ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <StoreSwitcher />
-      </SidebarHeader>
+      <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <NavMain />
       </SidebarContent>
