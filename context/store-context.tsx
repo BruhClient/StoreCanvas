@@ -53,7 +53,6 @@ export function StoreProvider({
   const { data, isFetching } = useQuery({
     queryKey: ["storeContext", storeName],
     queryFn: async () => {
-      console.log("START");
       if (!user) return null;
 
       const store = await getStoreByName(fromSlug(storeName));
@@ -63,11 +62,13 @@ export function StoreProvider({
         return null;
       }
 
-      const products = (await getProductsByStoreId(store.id)) || [];
-      const categories = (await getProductCategories(store.id)) || [];
+      const [products, categories] = await Promise.all([
+        getProductsByStoreId(store.id),
+        getProductCategories(store.id),
+      ]);
       setStore(store);
-      setProducts(products);
-      setProductCategories(categories);
+      setProducts(products ?? []);
+      setProductCategories(categories ?? []);
       return { store, products, categories };
     },
     enabled: !!user,
