@@ -227,3 +227,12 @@ export const orders = pgTable("order", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   extraFields: jsonb("extraFields").notNull().default("{}"),
 });
+
+export const paymentCards = pgTable("paymentCards", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});

@@ -19,9 +19,9 @@ export type ProductWithCategories = InferSelectModel<typeof products> & {
 };
 
 export interface StoreContextValue {
-  store?: Store;
+  store: Store;
   isFetching: boolean;
-  setStore: Dispatch<SetStateAction<Store | undefined>>;
+  setStore: Dispatch<SetStateAction<Store>>;
   products: ProductWithCategories[];
   setProducts: Dispatch<SetStateAction<ProductWithCategories[]>>;
   productCategories: string[];
@@ -35,7 +35,7 @@ export function StoreProvider({
 }: {
   children: ReactNode;
   initialData: {
-    store?: Store;
+    store: Store;
     products: ProductWithCategories[];
     productCategories: string[];
   };

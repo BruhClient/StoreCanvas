@@ -134,6 +134,13 @@
       "when": 1759304982811,
       "tag": "0018_little_firebird",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1759549481948,
+      "tag": "0019_bored_zemo",
+      "breakpoints": true
     }
   ]
 }

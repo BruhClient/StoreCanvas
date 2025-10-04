@@ -1,29 +1,22 @@
 import { env } from "@/data/env/server";
 import { stripe } from "@/lib/stripe";
 import { sendPaymentConfirmationEmail } from "@/server/actions/auth/mail";
-import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { format } from "date-fns";
-async function getRawBody(
-  readable: ReadableStream<Uint8Array>
-): Promise<Buffer> {
-  const reader = readable.getReader();
-  const chunks: Uint8Array[] = [];
+import { db } from "@/db";
+import { paymentCards } from "@/db/schema";
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (value) chunks.push(value);
-  }
-
-  return Buffer.concat(chunks);
-}
+export const config = {
+  api: {
+    bodyParser: false, // Important to get raw request body
+  },
+};
 
 export async function POST(req: NextRequest) {
   const endpointSecret = env.STRIPE_WEBHOOK_SECRET;
 
-  const signature = (await headers()).get("stripe-signature") as string;
+  const signature = req.headers.get("stripe-signature");
 
   if (!signature || !endpointSecret) {
     return NextResponse.json(
@@ -35,11 +28,11 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    const rawBody = await getRawBody(req.body!);
-
-    event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
+    // Get the raw bytes
+    const buf = Buffer.from(await req.arrayBuffer());
+    event = stripe.webhooks.constructEvent(buf, signature, endpointSecret);
   } catch (error) {
-    console.log(error);
+    console.log("Webhook signature verification failed:", error);
     return new NextResponse("invalid signature", { status: 400 });
   }
 
@@ -48,19 +41,21 @@ export async function POST(req: NextRequest) {
   try {
     switch (eventType) {
       case "checkout.session.completed": {
+        console.log("Checkout session completed", event.data.object);
+        break;
       }
+
       case "invoice.paid": {
         const {
           customer_email,
           hosted_invoice_url,
           amount_paid,
           id,
-
           customer_name,
           metadata,
         } = event.data.object as Stripe.Invoice;
 
-        const planType = metadata!.plan;
+        const planType = metadata?.plan;
 
         await sendPaymentConfirmationEmail(
           customer_email!,
@@ -71,8 +66,34 @@ export async function POST(req: NextRequest) {
           hosted_invoice_url!,
           planType!
         );
+        break;
+      }
+
+      case "payment_intent.succeeded": {
+        console.log("PaymentIntent succeeded", event.data.object);
+        break;
+      }
+
+      case "account.updated": {
+        const account = event.data.object;
+        if (account.charges_enabled) {
+          // Save account.id to your DB for this user
+          console.log("loading....");
+          await db.insert(paymentCards).values({
+            id: event.data.object.id,
+            userId: event.data.object.metadata!.user,
+            name: event.data.object.metadata!.cardName,
+          });
+        }
+
+        break;
+      }
+
+      default: {
+        console.log("Unhandled event type:", eventType);
       }
     }
+
     return new NextResponse("Success");
   } catch (error) {
     console.log(error);

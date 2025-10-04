@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   Store,
   Tag,
+  Wallet,
 } from "lucide-react";
 
 import {
@@ -45,6 +46,10 @@ const platformSidebarButtons = [
   {
     name: "Fields",
     icon: ListOrdered,
+  },
+  {
+    name: "Payments",
+    icon: Wallet,
   },
   {
     name: "Settings",
