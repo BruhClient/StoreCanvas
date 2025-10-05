@@ -22,10 +22,10 @@ const StoreSelector = () => {
   const { data } = useQuery({
     queryKey: ["userStores", user?.id],
     queryFn: async () => {
-      const stores = await getCurrentUserStores();
+      const res = await fetch("/api/stores");
+      if (!res.ok) throw new Error("Failed to fetch stores");
 
-      if (!stores) return [];
-      return stores;
+      return res.json();
     },
     enabled: !!user,
   });

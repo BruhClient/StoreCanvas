@@ -5,7 +5,6 @@ import PaymentCardGrid from "./_components/PaymentCardGrid";
 
 const PaymentPage = async () => {
   const paymentCards = await getPaymentCards();
-  console.log(paymentCards);
 
   if (!paymentCards) {
     return <div>Failed to load cards</div>;

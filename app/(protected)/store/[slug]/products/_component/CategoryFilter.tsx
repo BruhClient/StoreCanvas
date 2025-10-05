@@ -11,23 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Edit, Plus, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { showErrorToast } from "@/lib/toast";
 import {
   addProductCategory,
   deleteProductCategory,
 } from "@/server/db/productCategories";
 import { useStore } from "@/context/store-context";
-import { AnimatePresence } from "motion/react";
-import { MotionDiv } from "@/components/Motion";
-import { containerVariants } from "@/lib/variants";
-import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  AdditionalFieldsSchema,
-  ProductCategoriesSchema,
-} from "@/schemas/store-steps";
+import { ProductCategoriesSchema } from "@/schemas/store-steps";
 import CategoriesForm from "@/components/forms/AddProductCategoriesForm";
 import { Form } from "@/components/ui/form";
 

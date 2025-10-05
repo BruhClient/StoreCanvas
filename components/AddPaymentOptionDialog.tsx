@@ -21,6 +21,7 @@ import {
 } from "@/schemas/create-payment-card";
 import { Form } from "./ui/form";
 import FormTextInput from "./FormTextInput";
+import { Plus } from "lucide-react";
 
 interface AddPaymentOptionDialogProps {
   onAccountCreated?: (stripeConnectId: string) => void;
@@ -60,7 +61,9 @@ const AddPaymentOptionDialog: React.FC<AddPaymentOptionDialogProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Add Payment Option</Button>
+        <Button variant={"outline"}>
+          <Plus /> Add Payment Option
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
