@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,8 +24,9 @@ const DialogButton: React.FC<DialogButtonProps> = ({
 
   title,
 }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>{buttonContent}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         {title && (

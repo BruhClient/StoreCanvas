@@ -54,7 +54,11 @@ const EndSaleSessionButton = () => {
 
   return (
     <DialogButton
-      buttonContent={<Button variant={"destructive"}>End Sale Session</Button>}
+      buttonContent={
+        <Button variant={"destructive"} disabled={isPending}>
+          {isPending ? "Closing Store..." : "End Sale Session"}
+        </Button>
+      }
       title="Are you sure ?"
       description="This will close your store and customers will not be able to purchase your products"
     >
