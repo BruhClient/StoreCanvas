@@ -105,35 +105,37 @@ export const stores = pgTable("store", {
   description: text("description"),
   additionalFields:
     jsonb("additionalFields").$type<CreateAdditionalFieldsPayload[]>(),
+  isOpen: boolean("isOpen").default(false).notNull(),
 });
 
 export const storesRelations = relations(stores, ({ many, one }) => ({
   user: one(users, { fields: [stores.ownerId], references: [users.id] }),
   products: many(products),
-  categories: many(storeCategories),
+  saleSessions: many(saleSessions),
 }));
 
-// -------------------- Store Categories --------------------
-export const storeCategories = pgTable("store_categories", {
+// -------------------- Sale Sessions --------------------
+export const saleSessions = pgTable("saleSession", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   storeId: text("storeId")
     .notNull()
     .references(() => stores.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  createdAt: timestamp("createdAt", { mode: "date", withTimezone: true })
+  startedAt: timestamp("startedAt", { mode: "date", withTimezone: true })
     .defaultNow()
     .notNull(),
+  endedAt: timestamp("endedAt", { mode: "date", withTimezone: true }),
 });
 
-export const storeCategoriesRelations = relations(
-  storeCategories,
-  ({ one }) => ({
+export const saleSessionsRelations = relations(
+  saleSessions,
+  ({ one, many }) => ({
     store: one(stores, {
-      fields: [storeCategories.storeId],
+      fields: [saleSessions.storeId],
       references: [stores.id],
     }),
+    orders: many(orders),
   })
 );
 
@@ -199,7 +201,7 @@ export const productToCategories = pgTable(
 // -------------------- Relations --------------------
 export const productRelations = relations(products, ({ one, many }) => ({
   store: one(stores, { fields: [products.storeId], references: [stores.id] }),
-  productToCategories: many(productToCategories), // junction table
+  productToCategories: many(productToCategories),
 }));
 
 export const productToCategoriesRelations = relations(
@@ -215,6 +217,7 @@ export const productToCategoriesRelations = relations(
     }),
   })
 );
+
 // -------------------- Orders --------------------
 export const orders = pgTable("order", {
   id: text("id")
@@ -223,11 +226,15 @@ export const orders = pgTable("order", {
   storeId: text("storeId")
     .notNull()
     .references(() => stores.id, { onDelete: "cascade" }),
+  saleSessionId: text("saleSessionId").references(() => saleSessions.id, {
+    onDelete: "set null",
+  }),
   customerName: text("customerName").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   extraFields: jsonb("extraFields").notNull().default("{}"),
 });
 
+// -------------------- Payment Cards --------------------
 export const paymentCards = pgTable("paymentCards", {
   id: text("id").primaryKey(),
   userId: text("userId")

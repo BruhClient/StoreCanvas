@@ -1,7 +1,12 @@
 import React from "react";
+import StartSaleSessionDialog from "./_components/StartSaleSessionDialog";
 
 const StoreOrdersPage = () => {
-  return <div>StoreOrdersPage</div>;
+  return (
+    <div>
+      <StartSaleSessionDialog />
+    </div>
+  );
 };
 
 export default StoreOrdersPage;

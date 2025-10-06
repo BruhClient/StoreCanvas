@@ -141,6 +141,20 @@
       "when": 1759549481948,
       "tag": "0019_bored_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1759589437229,
+      "tag": "0020_keen_havok",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1759589728819,
+      "tag": "0021_pink_sugar_man",
+      "breakpoints": true
     }
   ]
 }
