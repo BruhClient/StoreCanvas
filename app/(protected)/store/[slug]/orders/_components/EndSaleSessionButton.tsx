@@ -16,8 +16,10 @@ const EndSaleSessionButton = () => {
   const [isPending, setIsPending] = useState(false);
   const { store } = useStore();
   const queryClient = useQueryClient();
+  const [dialogOpen, setDialogOpen] = useState(false);
   const closeUserStore = async () => {
     setIsPending(true);
+    setDialogOpen(false);
     const toastId = showLoadingToast("Closing store...");
 
     try {
@@ -36,9 +38,7 @@ const EndSaleSessionButton = () => {
         // Iterate over pages and sessions to update the active one
         const pages = oldData.pages.map((page: any) =>
           page.map((session: any) =>
-            session.endedAt
-              ? session
-              : { ...session, endedAt: new Date().toISOString() }
+            session.endedAt ? session : data.endedSession
           )
         );
 
@@ -54,6 +54,8 @@ const EndSaleSessionButton = () => {
 
   return (
     <DialogButton
+      dialogOpen={dialogOpen}
+      setDialogOpen={setDialogOpen}
       buttonContent={
         <Button variant={"destructive"} disabled={isPending}>
           {isPending ? "Closing Store..." : "End Sale Session"}

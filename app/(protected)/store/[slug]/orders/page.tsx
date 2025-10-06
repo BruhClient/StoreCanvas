@@ -22,7 +22,7 @@ const StoreOrdersPage = async ({
   return (
     <div className="space-y-2">
       <div className="flex justify-between w-full items-center">
-        {saleSessions[0].endedAt ? (
+        {saleSessions.length === 0 || saleSessions[0]?.endedAt ? (
           <>
             <Badge variant={"destructive"}>Your store is cloed</Badge>
             <StartSaleSessionButton />

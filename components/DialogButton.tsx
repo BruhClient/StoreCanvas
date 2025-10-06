@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useState } from "react";
+import React, { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,18 +15,21 @@ interface DialogButtonProps {
   children: ReactNode; // Content inside the dialog
   description?: string;
   title?: string; // Optional title for the dialog header
+  dialogOpen?: boolean;
+  setDialogOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
 const DialogButton: React.FC<DialogButtonProps> = ({
   buttonContent,
   children,
   description,
-
+  dialogOpen,
+  setDialogOpen,
   title,
 }) => {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={dialogOpen ?? open} onOpenChange={setDialogOpen ?? setOpen}>
       <DialogTrigger asChild>{buttonContent}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         {title && (

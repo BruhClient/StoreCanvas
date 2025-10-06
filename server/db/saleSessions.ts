@@ -1,10 +1,10 @@
 "use server";
 
 import { db } from "@/db";
-import { orders, saleSessions, stores } from "@/db/schema";
+import { orders, products, saleSessions, stores } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { CreateSaleSessionPayload } from "@/schemas/create-sale-session";
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, count, desc, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getStoreByName } from "./stores";
 import { toSlug } from "@/lib/slug";
@@ -13,13 +13,26 @@ export const createSaleSession = async (
   storeId: string,
   values: CreateSaleSessionPayload
 ) => {
-  const session = await auth();
-
-  if (!session) {
-    return null;
-  }
-
   try {
+    const activeSaleSession = await db.query.saleSessions.findFirst({
+      where: and(
+        eq(saleSessions.storeId, storeId),
+        isNull(saleSessions.endedAt)
+      ),
+    });
+
+    if (activeSaleSession) {
+      throw Error("There is already a active sale session");
+    }
+
+    const [{ count: productCount }] = await db
+      .select({ count: count() })
+      .from(products)
+      .where(eq(products.storeId, storeId));
+
+    if (productCount === 0) {
+      throw Error("Your store has no products");
+    }
     const [newSession, updatedStore] = await Promise.all([
       db
         .insert(saleSessions)
@@ -35,15 +48,24 @@ export const createSaleSession = async (
           isOpen: true,
         })
         .where(eq(stores.id, storeId))
-        .returning(), // 🔑 important: only update this store
+        .returning(), // only update this store
     ]);
+
+    const createdSession = {
+      ...newSession[0],
+      orderCount: 0, // newly created session always starts with 0 orders
+    };
 
     revalidatePath(`/store/${toSlug(updatedStore[0].name)}/orders`);
 
-    // `newSession` is an array (from returning()), so take index 0
-    return newSession[0];
-  } catch {
-    return null;
+    return {
+      success: true,
+      session: createdSession,
+    };
+  } catch (err: any) {
+    return {
+      error: err.message,
+    };
   }
 };
 

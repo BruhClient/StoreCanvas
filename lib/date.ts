@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { differenceInHours, differenceInMinutes, format } from "date-fns";
 
 /**
  * Format a date into "6 January 2025"
@@ -13,3 +13,18 @@ export function formatLongDate(date: Date | string | number): string {
 
   return format(parsedDate, "d MMMM yyyy");
 }
+
+export const getDuration = (
+  start: string | Date,
+  end?: string | Date | null
+) => {
+  const startedAt = new Date(start);
+  const endedAt = end ? new Date(end) : new Date();
+
+  const minutes = differenceInMinutes(endedAt, startedAt);
+  if (minutes < 60) {
+    return `${minutes} min${minutes !== 1 ? "s" : ""}`;
+  }
+  const hours = differenceInHours(endedAt, startedAt);
+  return `${hours} hr${hours !== 1 ? "s" : ""}`;
+};

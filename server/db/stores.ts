@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import {
+  orders,
   productCategories,
   products,
   productToCategories,
@@ -9,7 +10,7 @@ import {
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { CreateStorePayload } from "@/schemas/create-store";
-import { and, eq, InferSelectModel, sql } from "drizzle-orm";
+import { and, count, eq, InferSelectModel, sql } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { endSaleSession } from "./saleSessions";
 import { toSlug } from "@/lib/slug";
@@ -215,13 +216,27 @@ export const closeStore = async (id: string) => {
         })
         .where(and(eq(stores.id, id), eq(stores.ownerId, session.user.id)))
         .returning(),
-      endSaleSession(id), // end the active sale session
+      endSaleSession(id), // end the active sale session (returns the session)
     ]);
+
+    let orderCount = 0;
+    if (endedSession?.id) {
+      const [result] = await db
+        .select({ value: count() })
+        .from(orders)
+        .where(eq(orders.saleSessionId, endedSession.id));
+      orderCount = result?.value ?? 0;
+    }
+
     revalidatePath(`/store/${toSlug(updatedStore[0].name)}/orders`);
+
     return {
       success: true,
-      data: updatedStore[0], // return the updated store
-      endedSession,
+      data: updatedStore[0], // updated store
+      endedSession: {
+        ...endedSession,
+        orderCount,
+      },
     };
   } catch (err) {
     console.error("Failed to close store:", err);

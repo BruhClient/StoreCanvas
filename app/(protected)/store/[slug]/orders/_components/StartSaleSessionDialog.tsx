@@ -31,6 +31,7 @@ import useSessionUser from "@/hooks/use-session-user";
 import { toast } from "sonner";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { set } from "date-fns";
 
 const paymentOptions = [
   {
@@ -65,6 +66,7 @@ const StartSaleSessionButton = () => {
 
   // Fetch payment cards
   const [cards, setCards] = useState<{ id: string; name: string }[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [loadingCards, setLoadingCards] = useState(false);
 
   useEffect(() => {
@@ -86,13 +88,14 @@ const StartSaleSessionButton = () => {
 
   const onSubmit = async (values: CreateSaleSessionPayload) => {
     setIsPending(true);
+    setDialogOpen(false);
     const toastId = showLoadingToast("Opening Store...");
 
     try {
       const data = await createSaleSession(store.id, values);
 
-      if (!data) {
-        showErrorToast("Failed to open store");
+      if (!data.success) {
+        showErrorToast(data.error);
         return;
       }
 
@@ -102,7 +105,7 @@ const StartSaleSessionButton = () => {
       queryClient.setQueryData(["saleSessions", store.id], (oldData: any) => {
         if (!oldData) return oldData;
 
-        const newPage = [data]; // wrap new session in a page
+        const newPage = [data.session]; // wrap new session in a page
         return {
           ...oldData,
           pages: [newPage, ...oldData.pages],
@@ -119,6 +122,8 @@ const StartSaleSessionButton = () => {
 
   return (
     <DialogButton
+      setDialogOpen={setDialogOpen}
+      dialogOpen={dialogOpen}
       buttonContent={
         <Button variant="outline" disabled={isPending}>
           <DoorOpen />

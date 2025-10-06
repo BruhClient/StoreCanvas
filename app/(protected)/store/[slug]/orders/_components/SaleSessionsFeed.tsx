@@ -6,11 +6,18 @@ import { useSaleSessions } from "@/hooks/use-sale-sessions";
 import { InferSelectModel } from "drizzle-orm";
 import React, { useEffect } from "react";
 import { useIntersection } from "@mantine/hooks";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Activity, Clock, CreditCard, Package } from "lucide-react";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { format } from "date-fns";
+import { getDuration } from "@/lib/date";
 
 const formatDate = (date?: string | null) => {
   if (!date) return "Ongoing";
@@ -56,19 +63,12 @@ const SaleSessionsFeed = ({
             }`}
           >
             <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span className="text-lg font-semibold">
-                  {isActive ? "Active Session" : "Completed Session"}
-                </span>
-                {isActive && (
-                  <Badge
-                    variant="destructive"
-                    className="flex items-center gap-1"
-                  >
-                    <Clock className="w-3 h-3" /> Active
-                  </Badge>
-                )}
+              <CardTitle>
+                {isActive ? "Active Session" : "Completed Session"}{" "}
               </CardTitle>
+              <CardDescription>
+                {getDuration(session.startedAt, session.endedAt)}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
