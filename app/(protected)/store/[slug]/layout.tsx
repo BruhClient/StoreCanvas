@@ -4,7 +4,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { StoreProvider, StoreContextValue } from "@/context/store-context";
+import { StoreProvider } from "@/context/store-context";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import StoreBreadcrumb from "@/components/sidebar/store-breadcrumb";

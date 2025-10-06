@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { DoorOpen, Plus } from "lucide-react";
 import React from "react";
 import StartSaleSessionForm from "./StartSaleSessionForm";
 
@@ -17,8 +17,8 @@ const StartSaleSessionButton = () => {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant={"outline"}>
-          <Plus />
-          Start Sale Session
+          <DoorOpen />
+          Open Store
         </Button>
       </DialogTrigger>
       <DialogContent>

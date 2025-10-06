@@ -155,6 +155,13 @@
       "when": 1759589728819,
       "tag": "0021_pink_sugar_man",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1759750109861,
+      "tag": "0022_gray_jigsaw",
+      "breakpoints": true
     }
   ]
 }

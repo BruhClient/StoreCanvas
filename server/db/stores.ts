@@ -11,6 +11,8 @@ import { auth } from "@/lib/auth";
 import { CreateStorePayload } from "@/schemas/create-store";
 import { and, eq, InferSelectModel, sql } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { endSaleSession } from "./saleSessions";
+import { toSlug } from "@/lib/slug";
 
 export const getCurrentUserStores = async (limit?: number) => {
   const session = await auth();
@@ -193,6 +195,36 @@ export const deleteStore = async (id: string) => {
       data: store,
     };
   } catch {
+    return null;
+  }
+};
+
+export const closeStore = async (id: string) => {
+  const session = await auth();
+
+  if (!session) {
+    return null;
+  }
+
+  try {
+    const [updatedStore, endedSession] = await Promise.all([
+      db
+        .update(stores)
+        .set({
+          isOpen: false, // closing the store
+        })
+        .where(and(eq(stores.id, id), eq(stores.ownerId, session.user.id)))
+        .returning(),
+      endSaleSession(id), // end the active sale session
+    ]);
+    revalidatePath(`/store/${toSlug(updatedStore[0].name)}/orders`);
+    return {
+      success: true,
+      data: updatedStore[0], // return the updated store
+      endedSession,
+    };
+  } catch (err) {
+    console.error("Failed to close store:", err);
     return null;
   }
 };

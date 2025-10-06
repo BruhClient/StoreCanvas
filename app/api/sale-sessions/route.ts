@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { saleSessions } from "@/db/schema";
+import { saleSessions, orders } from "@/db/schema";
 import { DEFAULT_FETCH_LIMIT } from "@/data/contants";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,11 +20,28 @@ export async function GET(req: NextRequest) {
     // Calculate offset for page-based pagination
     const offset = page * take;
 
-    // Fetch sale sessions from Drizzle
+    // Query saleSessions with order count
     const sessions = await db
-      .select()
+      .select({
+        id: saleSessions.id,
+        storeId: saleSessions.storeId,
+        accountId: saleSessions.accountId,
+        startedAt: saleSessions.startedAt,
+        endedAt: saleSessions.endedAt,
+        paymentType: saleSessions.paymentType,
+        orderCount: sql<number>`COUNT(${orders.id})`.as("orderCount"),
+      })
       .from(saleSessions)
+      .leftJoin(orders, eq(orders.saleSessionId, saleSessions.id))
       .where(eq(saleSessions.storeId, storeId))
+      .groupBy(
+        saleSessions.id,
+        saleSessions.storeId,
+        saleSessions.accountId,
+        saleSessions.startedAt,
+        saleSessions.endedAt,
+        saleSessions.paymentType
+      )
       .orderBy(desc(saleSessions.startedAt))
       .limit(take)
       .offset(offset);

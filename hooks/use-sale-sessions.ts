@@ -1,13 +1,19 @@
 "use client";
 
 import { DEFAULT_FETCH_LIMIT } from "@/data/contants";
+import { saleSessions } from "@/db/schema";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { InferSelectModel } from "drizzle-orm";
 
 interface UseSaleSessionsOptions {
   storeId: string;
+  initialData: InferSelectModel<typeof saleSessions>[];
 }
 
-export const useSaleSessions = ({ storeId }: UseSaleSessionsOptions) => {
+export const useSaleSessions = ({
+  storeId,
+  initialData,
+}: UseSaleSessionsOptions) => {
   const query = useInfiniteQuery({
     queryKey: ["saleSessions", storeId],
 
@@ -20,14 +26,17 @@ export const useSaleSessions = ({ storeId }: UseSaleSessionsOptions) => {
       return (await res.json()) ?? [];
     },
 
-    staleTime: 5 * 60_000, // 5 minutes
-
+    initialData: {
+      pages: [initialData],
+      pageParams: [0],
+    },
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       if (lastPage.length < DEFAULT_FETCH_LIMIT) {
         return undefined; // No more pages
       }
       return lastPageParam + 1;
     },
+
     initialPageParam: 0,
   });
 

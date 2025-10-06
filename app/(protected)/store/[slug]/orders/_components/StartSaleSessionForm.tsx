@@ -9,19 +9,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useStore } from "@/context/store-context";
 import useSessionUser from "@/hooks/use-session-user";
-import { showErrorToast } from "@/lib/toast";
+import {
+  showErrorToast,
+  showLoadingToast,
+  showSuccessToast,
+} from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import {
   CreateSaleSessionPayload,
   CreateSaleSessionSchema,
 } from "@/schemas/create-sale-session";
+import { createSaleSession } from "@/server/db/saleSessions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 const paymentOptions = [
   {
@@ -48,9 +55,32 @@ const StartSaleSessionForm = () => {
       accountId: "",
     },
   });
+  const { store } = useStore();
+  const queryClient = useQueryClient();
+  const onSubmit = async (values: CreateSaleSessionPayload) => {
+    const toastId = showLoadingToast("Opening Store...");
+    await createSaleSession(store.id, values).then((data) => {
+      if (!data) {
+        showErrorToast("Failed to open store");
+      } else {
+        showSuccessToast("Your store is open !");
+        queryClient.setQueryData(["saleSessions", store.id], (oldData: any) => {
+          if (!oldData) return oldData;
 
-  const onSubmit = (values: CreateSaleSessionPayload) => {};
-  const router = useRouter();
+          // oldData.pages is an array of pages
+          const newPage = [data]; // wrap your new item in a page array
+
+          return {
+            ...oldData,
+            pages: [newPage, ...oldData.pages], // prepend new page or append
+            pageParams: [...oldData.pageParams], // adjust pageParams if needed
+          };
+        });
+      }
+
+      toast.dismiss(toastId);
+    });
+  };
   const user = useSessionUser();
   const { data, isLoading } = useQuery({
     queryKey: ["cards", user?.id],
@@ -153,7 +183,12 @@ const StartSaleSessionForm = () => {
           )}
         />
 
-        <Button className="w-full" size={"lg"} variant={"outline"}>
+        <Button
+          className="w-full"
+          size={"lg"}
+          variant={"outline"}
+          disabled={form.formState.isSubmitting}
+        >
           Start Sale Session
         </Button>
       </form>

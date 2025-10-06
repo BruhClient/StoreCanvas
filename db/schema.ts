@@ -122,9 +122,14 @@ export const saleSessions = pgTable("saleSession", {
   storeId: text("storeId")
     .notNull()
     .references(() => stores.id, { onDelete: "cascade" }),
+
+  accountId: text("accountId")
+    .notNull()
+    .references(() => paymentCards.id, { onDelete: "cascade" }),
   startedAt: timestamp("startedAt", { mode: "date", withTimezone: true })
     .defaultNow()
     .notNull(),
+  paymentType: text("paymentType").notNull(),
   endedAt: timestamp("endedAt", { mode: "date", withTimezone: true }),
 });
 
@@ -135,6 +140,7 @@ export const saleSessionsRelations = relations(
       fields: [saleSessions.storeId],
       references: [stores.id],
     }),
+
     orders: many(orders),
   })
 );
