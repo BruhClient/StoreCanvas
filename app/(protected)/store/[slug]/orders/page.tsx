@@ -1,10 +1,10 @@
-import React from "react";
-import StartSaleSessionDialog from "./_components/StartSaleSessionDialog";
+import React, { Suspense } from "react";
+import StartSaleSessionButton from "./_components/StartSaleSessionDialog";
 
 const StoreOrdersPage = () => {
   return (
     <div>
-      <StartSaleSessionDialog />
+      <StartSaleSessionButton />
     </div>
   );
 };
