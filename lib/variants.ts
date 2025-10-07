@@ -4,13 +4,15 @@ export const containerVariants = {
   exit: { opacity: 0 },
 };
 
-export const formTransitionVariants = {
+import { Variants } from "framer-motion";
+
+export const formTransitionVariants: Variants = {
   hidden: (direction: number) => ({
     opacity: 0,
     x: direction > 0 ? 100 : -100, // slide in from right if next, left if prev
     scale: 0.98,
   }),
-  visible: {
+  visible: (direction?: number) => ({
     opacity: 1,
     x: 0,
     scale: 1,
@@ -18,7 +20,7 @@ export const formTransitionVariants = {
       duration: 0.3,
       ease: [0.4, 0, 0.2, 1],
     },
-  },
+  }),
   exit: (direction: number) => ({
     opacity: 0,
     x: direction > 0 ? -100 : 100, // slide out to opposite side
