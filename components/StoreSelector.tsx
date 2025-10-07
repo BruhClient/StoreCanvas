@@ -1,5 +1,4 @@
 "use client";
-import { getCurrentUserStores } from "@/server/db/stores";
 import React from "react";
 import {
   Popover,

@@ -7,7 +7,6 @@ import { accounts, users, verificationTokens } from "@/db/schema";
 import { getUserById, updateUserById } from "@/server/db/users";
 import providers from "./providers";
 import { PricingPlanName } from "@/data/pricingPlans";
-import { getCurrentUserStores } from "@/server/db/stores";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(db, {
     usersTable: users,
