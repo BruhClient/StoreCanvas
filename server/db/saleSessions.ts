@@ -59,7 +59,7 @@ export const createSaleSession = async (
     revalidateTag("saleSessions-" + storeId);
     revalidateTag("store-" + storeId);
 
-    revalidatePath(`/store/${toSlug(updatedStore[0].name)}/orders`);
+    revalidatePath(`/store/${toSlug(updatedStore[0].name)}/sessions`);
 
     return {
       success: true,

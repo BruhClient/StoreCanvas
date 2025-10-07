@@ -175,8 +175,6 @@ export const editStore = async (
       .where(and(eq(stores.id, id), eq(stores.ownerId, session.user.id)))
       .returning();
     if (fields.name) {
-      console.log("ORIGNAL NAME :", originalName);
-      console.log("UPDATED", fields.name);
       revalidateTag("store-" + originalName?.toLowerCase());
       revalidateTag("store-" + fields.name?.toLowerCase());
     }
@@ -244,7 +242,7 @@ export const closeStore = async (id: string) => {
     revalidateTag("saleSessions-" + updatedStore[0].id);
     revalidateTag("store-" + updatedStore[0].id);
 
-    revalidatePath(`/store/${toSlug(updatedStore[0].name)}/orders`);
+    revalidatePath(`/store/${toSlug(updatedStore[0].name)}/sessions`);
 
     return {
       success: true,

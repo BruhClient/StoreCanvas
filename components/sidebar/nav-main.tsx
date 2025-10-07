@@ -3,19 +3,15 @@
 import {
   Barcode,
   ChartColumnIncreasing,
-  ChevronRight,
+  HandCoins,
   ListOrdered,
-  LucideListOrdered,
   Settings,
-  ShoppingCart,
-  Store,
   Tag,
   Wallet,
 } from "lucide-react";
 
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -40,8 +36,8 @@ const platformSidebarButtons = [
     icon: Tag,
   },
   {
-    name: "Orders",
-    icon: ShoppingCart,
+    name: "Sessions",
+    icon: HandCoins,
   },
   {
     name: "Fields",
