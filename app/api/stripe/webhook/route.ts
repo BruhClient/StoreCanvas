@@ -6,6 +6,7 @@ import Stripe from "stripe";
 import { format } from "date-fns";
 import { db } from "@/db";
 import { paymentCards } from "@/db/schema";
+import { revalidateTag } from "next/cache";
 
 export async function POST(req: NextRequest) {
   const endpointSecret = env.STRIPE_WEBHOOK_SECRET;
@@ -72,12 +73,14 @@ export async function POST(req: NextRequest) {
         const account = event.data.object;
         if (account.charges_enabled) {
           // Save account.id to your DB for this user
-          console.log("loading....");
+
           await db.insert(paymentCards).values({
             id: event.data.object.id,
             userId: event.data.object.metadata!.user,
             name: event.data.object.metadata!.cardName,
           });
+
+          revalidateTag("paymentCards-" + event.data.object.metadata!.user);
         }
 
         break;

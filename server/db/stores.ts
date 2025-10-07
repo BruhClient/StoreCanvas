@@ -15,21 +15,17 @@ import { revalidatePath, revalidateTag, unstable_cacheTag } from "next/cache";
 import { endSaleSession } from "./saleSessions";
 import { toSlug } from "@/lib/slug";
 
-export const getCurrentUserStores = async (limit?: number) => {
-  const session = await auth();
-  if (!session) {
-    return [];
-  } else {
-    try {
-      const userStores = await db.query.stores.findMany({
-        where: eq(stores.ownerId, session.user.id),
-        limit,
-      });
+export const getUserStores = async (userId: string) => {
+  "use cache";
+  unstable_cacheTag("stores-", userId);
+  try {
+    const userStores = await db.query.stores.findMany({
+      where: eq(stores.ownerId, userId),
+    });
 
-      return userStores;
-    } catch {
-      return [];
-    }
+    return userStores;
+  } catch {
+    return [];
   }
 };
 
@@ -134,7 +130,7 @@ export const createStore = async (values: CreateStorePayload) => {
           }
         }
       }
-
+      revalidateTag("stores-" + session.user.id);
       return newStore;
     });
 
@@ -207,6 +203,8 @@ export const deleteStore = async (id: string) => {
       .delete(stores)
       .where(and(eq(stores.id, id), eq(stores.ownerId, session.user.id)))
       .returning();
+    revalidateTag("stores-" + session.user.id);
+    revalidateTag("store-" + id);
     return {
       success: true,
       data: store,
@@ -243,6 +241,8 @@ export const closeStore = async (id: string) => {
         .where(eq(orders.saleSessionId, endedSession.id));
       orderCount = result?.value ?? 0;
     }
+    revalidateTag("saleSessions-" + updatedStore[0].id);
+    revalidateTag("store-" + updatedStore[0].id);
 
     revalidatePath(`/store/${toSlug(updatedStore[0].name)}/orders`);
 

@@ -5,16 +5,15 @@ import { paymentCards } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 import { Store } from "lucide-react";
+import { revalidateTag, unstable_cacheTag } from "next/cache";
 
-export const getPaymentCards = async () => {
-  const session = await auth();
+export const getPaymentCards = async (userId: string) => {
+  "use cache";
+  unstable_cacheTag("paymentCards-" + userId);
 
-  if (!session) {
-    return null;
-  }
   try {
     const cards = await db.query.paymentCards.findMany({
-      where: eq(paymentCards.userId, session.user.id),
+      where: eq(paymentCards.userId, userId),
     });
     return cards;
   } catch {
@@ -38,7 +37,7 @@ export const deletePaymentCard = async (stripeAccountId: string) => {
       .returning();
 
     if (!deleted[0]) return null;
-
+    revalidateTag("paymentCards-" + deleted[0].userId);
     return { ...deleted[0], categories: [] }; // categories gone after delete
   } catch {
     return null;

@@ -5,7 +5,7 @@ import { orders, products, saleSessions, stores } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { CreateSaleSessionPayload } from "@/schemas/create-sale-session";
 import { and, count, desc, eq, isNull, sql } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cacheTag } from "next/cache";
 import { getStoreByName } from "./stores";
 import { toSlug } from "@/lib/slug";
 
@@ -56,6 +56,9 @@ export const createSaleSession = async (
       orderCount: 0, // newly created session always starts with 0 orders
     };
 
+    revalidateTag("saleSessions-" + storeId);
+    revalidateTag("store-" + storeId);
+
     revalidatePath(`/store/${toSlug(updatedStore[0].name)}/orders`);
 
     return {
@@ -70,16 +73,12 @@ export const createSaleSession = async (
 };
 
 export const getSaleSessions = async (
-  storeName: string,
+  storeId: string,
   { limit = 10, offset = 0 }: { limit?: number; offset?: number } = {}
 ) => {
+  "use cache";
+  unstable_cacheTag("saleSessions-" + storeId);
   try {
-    const store = await getStoreByName(storeName);
-
-    if (!store) {
-      throw new Error("Could not find store by storeName");
-    }
-
     const sessions = await db
       .select({
         id: saleSessions.id,
@@ -92,7 +91,7 @@ export const getSaleSessions = async (
       })
       .from(saleSessions)
       .leftJoin(orders, eq(orders.saleSessionId, saleSessions.id))
-      .where(eq(saleSessions.storeId, store.id))
+      .where(eq(saleSessions.storeId, storeId))
       .groupBy(
         saleSessions.id,
         saleSessions.storeId,

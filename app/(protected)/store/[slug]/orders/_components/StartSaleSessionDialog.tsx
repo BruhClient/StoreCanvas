@@ -32,6 +32,8 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { set } from "date-fns";
+import { InferSelectModel } from "drizzle-orm";
+import { stores } from "@/db/schema";
 
 const paymentOptions = [
   {
@@ -52,7 +54,7 @@ const paymentOptions = [
 
 const StartSaleSessionButton = () => {
   const [isPending, setIsPending] = useState(false);
-  const { store } = useStore();
+  const { store, setStore } = useStore();
   const user = useSessionUser();
   const queryClient = useQueryClient();
 
@@ -111,6 +113,10 @@ const StartSaleSessionButton = () => {
           pages: [newPage, ...oldData.pages],
           pageParams: [...oldData.pageParams],
         };
+      });
+
+      setStore((prev) => {
+        return { ...prev, isOpen: true };
       });
     } catch {
       showErrorToast();

@@ -18,7 +18,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getCurrentUserStores } from "@/server/db/stores";
+import { getUserStores } from "@/server/db/stores";
 import { useRouter } from "next/navigation";
 import { formatLongDate } from "@/lib/date";
 import { toSlug } from "@/lib/slug";
@@ -35,7 +35,7 @@ export function StoreSwitcher({}: {}) {
   const { data, isLoading } = useQuery({
     queryKey: ["userStores", user?.id],
     queryFn: async () => {
-      const stores = await getCurrentUserStores();
+      const stores = await getUserStores(user!.id);
 
       if (!stores) return [];
       return stores;
@@ -77,7 +77,15 @@ export function StoreSwitcher({}: {}) {
               <div className="flex-1 flex flex-col text-left text-sm leading-tight overflow-hidden transition-all duration-200 min-w-0">
                 <span className="font-medium truncate">{store!.name}</span>
                 <span className="text-xs truncate">
-                  {formatLongDate(store!.createdAt)}
+                  {store.isOpen ? (
+                    <div className="text-xs text-muted-foreground">
+                      Store open
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground">
+                      Store closed
+                    </div>
+                  )}
                 </span>
               </div>
 

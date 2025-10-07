@@ -8,7 +8,7 @@ import { Input } from "./ui/input";
 import { showErrorToast } from "@/lib/toast";
 import {
   deleteStore as deleteUserStore,
-  getCurrentUserStores,
+  getUserStores,
 } from "@/server/db/stores";
 import { useRouter } from "next/navigation";
 
@@ -27,7 +27,7 @@ const DeleteStoreButton = ({
     const data = await deleteUserStore(store.id);
 
     if (data) {
-      const stores = await getCurrentUserStores();
+      const stores = await getUserStores(data.data[0].ownerId);
 
       if (stores.length === 0) {
         router.push("/store/new");

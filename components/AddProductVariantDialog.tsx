@@ -46,6 +46,7 @@ export default function AddProductVariantDialog({
   values?: VariantPayload;
 }) {
   const [variantDialogOpen, setVariantDialogOpen] = useState(false);
+
   const [optionDialogOpen, setOptionDialogOpen] = useState(false);
 
   const form = useForm<VariantPayload>({

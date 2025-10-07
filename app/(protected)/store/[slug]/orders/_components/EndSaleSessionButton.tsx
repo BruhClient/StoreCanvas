@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 const EndSaleSessionButton = () => {
   const [isPending, setIsPending] = useState(false);
-  const { store } = useStore();
+  const { store, setStore } = useStore();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const closeUserStore = async () => {
@@ -41,6 +41,10 @@ const EndSaleSessionButton = () => {
             session.endedAt ? session : data.endedSession
           )
         );
+
+        setStore((prev) => {
+          return { ...prev, isOpen: false };
+        });
 
         return { ...oldData, pages };
       });

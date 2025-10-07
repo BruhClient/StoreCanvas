@@ -6,6 +6,8 @@ import { fromSlug } from "@/lib/slug";
 import SaleSessionsFeed from "./_components/SaleSessionsFeed";
 import { Badge } from "@/components/ui/badge";
 import EndSaleSessionButton from "./_components/EndSaleSessionButton";
+import { getStoreByName } from "@/server/db/stores";
+import { redirect } from "next/navigation";
 
 const StoreOrdersPage = async ({
   params,
@@ -14,7 +16,12 @@ const StoreOrdersPage = async ({
 }) => {
   const slug = (await params).slug;
 
-  const saleSessions = await getSaleSessions(fromSlug(slug), {
+  const store = await getStoreByName(fromSlug(slug));
+
+  if (!store) {
+    redirect("/store");
+  }
+  const saleSessions = await getSaleSessions(store.id, {
     limit: DEFAULT_FETCH_LIMIT,
     offset: 0,
   });
@@ -24,7 +31,7 @@ const StoreOrdersPage = async ({
       <div className="flex justify-between w-full items-center">
         {saleSessions.length === 0 || saleSessions[0]?.endedAt ? (
           <>
-            <Badge variant={"destructive"}>Your store is cloed</Badge>
+            <Badge variant={"destructive"}>Your store is closed</Badge>
             <StartSaleSessionButton />
           </>
         ) : (

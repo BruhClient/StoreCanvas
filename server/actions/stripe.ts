@@ -79,13 +79,13 @@ export async function createConnectAccount(
 export async function deleteConnectAccount(accountId: string) {
   try {
     const deleted = await stripe.accounts.del(accountId);
-    console.log("Deleted account:", deleted);
 
     const data = await deletePaymentCard(accountId);
 
     if (!data) {
       throw Error("Failed to delete from db");
     }
+
     return { success: true, deleted };
   } catch (error) {
     console.error("Error deleting account:", error);
