@@ -11,7 +11,7 @@ import {
 import { auth } from "@/lib/auth";
 import { CreateStorePayload } from "@/schemas/create-store";
 import { and, count, eq, InferSelectModel, sql } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cacheTag } from "next/cache";
 import { endSaleSession } from "./saleSessions";
 import { toSlug } from "@/lib/slug";
 
@@ -146,6 +146,8 @@ export const createStore = async (values: CreateStorePayload) => {
 };
 
 export const getStoreByName = async (name: string) => {
+  "use cache";
+  unstable_cacheTag("store-" + name.toLowerCase());
   const store = await db.query.stores.findFirst({
     where: eq(sql`LOWER(${stores.name})`, name.trim().toLowerCase()),
   });
@@ -157,25 +159,39 @@ export const editStore = async (
   id: string,
   fields: Partial<InferSelectModel<typeof stores>>
 ) => {
-  console.log(fields);
   const session = await auth();
 
   if (!session) {
     return null;
   }
   try {
+    let originalName;
+    if (fields.name) {
+      const originalStore = await db.query.stores.findFirst({
+        columns: { name: true },
+        where: eq(stores.id, id),
+      });
+      originalName = originalStore?.name;
+    }
     const store = await db
       .update(stores)
       .set(fields)
       .where(and(eq(stores.id, id), eq(stores.ownerId, session.user.id)))
       .returning();
+    if (fields.name) {
+      console.log("ORIGNAL NAME :", originalName);
+      console.log("UPDATED", fields.name);
+      revalidateTag("store-" + originalName?.toLowerCase());
+      revalidateTag("store-" + fields.name?.toLowerCase());
+    }
 
     return {
       success: true,
       data: store[0],
       user: session.user.id,
     };
-  } catch {
+  } catch (error: any) {
+    console.log(error);
     return null;
   }
 };

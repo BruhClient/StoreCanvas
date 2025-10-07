@@ -5,7 +5,7 @@ import { orders, products, saleSessions, stores } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { CreateSaleSessionPayload } from "@/schemas/create-sale-session";
 import { and, count, desc, eq, isNull, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getStoreByName } from "./stores";
 import { toSlug } from "@/lib/slug";
 

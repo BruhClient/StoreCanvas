@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "10mb",
     },
+    dynamicIO: true,
   },
   images: {
     domains: ["mu9dfcs0bu.ufs.sh", "utfs.io"],

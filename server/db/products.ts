@@ -5,6 +5,7 @@ import { productCategories, products, productToCategories } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { CreateProductPayload } from "@/schemas/create-product";
 import { and, eq } from "drizzle-orm";
+import { revalidateTag, unstable_cacheTag } from "next/cache";
 
 function normalizeProduct(product: any) {
   return {
@@ -15,6 +16,8 @@ function normalizeProduct(product: any) {
 }
 
 export const getProductsByStoreId = async (id: string) => {
+  "use cache";
+  unstable_cacheTag("products-" + id);
   try {
     const storeProducts = await db.query.products.findMany({
       where: eq(products.storeId, id),
@@ -96,6 +99,7 @@ export const createProduct = async (
       },
     });
 
+    revalidateTag("products-" + storeId);
     return normalizeProduct(fullProduct);
   } catch (error) {
     console.log(error);
@@ -107,15 +111,16 @@ export const updateProduct = async (
   productId: string,
   data: Partial<CreateProductPayload> & { categories?: string[] } // categories are productCategory IDs
 ) => {
-  console.log("DATA", data);
-
   const session = await auth();
   if (!session) return null;
 
   try {
     // 1️⃣ Update the main product fields (excluding categories)
     const { categories, ...productData } = data;
-
+    const product = await db.query.products.findFirst({
+      columns: { storeId: true }, // only select storeId
+      where: eq(products.id, productId),
+    });
     if (Object.keys(productData).length > 0) {
       await db
         .update(products)
@@ -164,7 +169,7 @@ export const updateProduct = async (
         },
       },
     });
-
+    revalidateTag("products-" + product?.storeId);
     return fullProduct ? normalizeProduct(fullProduct) : null;
   } catch (err) {
     console.error(err);
@@ -186,6 +191,7 @@ export const deleteProduct = async (productId: string) => {
 
     if (!deleted[0]) return null;
 
+    revalidateTag("products-" + deleted[0].storeId);
     return { ...deleted[0], categories: [] }; // categories gone after delete
   } catch {
     return null;

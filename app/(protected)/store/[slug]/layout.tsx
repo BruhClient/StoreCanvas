@@ -17,7 +17,7 @@ import { redirect } from "next/navigation";
 
 interface StoreDetailsLayoutProps {
   children: React.ReactNode;
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export const StoreDetailsLayout = async ({
@@ -33,7 +33,7 @@ export const StoreDetailsLayout = async ({
   // fetch everything server-side
   const store = await getStoreByName(fromSlug(slug));
   if (!store || store.ownerId !== session.user.id) {
-    throw new Error("Store not found or unauthorized"); // optionally redirect
+    redirect("/store");
   }
 
   const [products, categories] = await Promise.all([

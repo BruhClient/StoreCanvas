@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useStore } from "@/context/store-context";
 import { stores } from "@/db/schema";
+import { toSlug } from "@/lib/slug";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { useUploadThing } from "@/lib/uploadthing";
 import { extractFileKey } from "@/lib/utils";
@@ -40,64 +41,69 @@ const StoreSettingsPage = () => {
 
   const onSubmit = async (values: EditStorePayload) => {
     try {
-      // Handle image
-      let imageUrl: string | null = values.imageFile as string | null;
+      const payload: Partial<EditStorePayload> = {};
 
+      // --- Handle store name ---
+      if (values.storeName && values.storeName.trim() !== store.name) {
+        payload.name = values.storeName.trim();
+      }
+
+      // --- Handle image ---
       if (values.imageFile instanceof File) {
-        if (store.imageUrl) {
+        // User uploaded a new image → replace existing
+        if (store.imageUrl)
           await deleteFileFromUploadthing(extractFileKey(store.imageUrl)!);
-        }
 
         const uploadResult = await startUpload([values.imageFile]);
         if (!uploadResult) throw new Error("Failed to upload image");
 
-        imageUrl = uploadResult[0].ufsUrl;
-      } else if (values.imageFile === null) {
-        if (store.imageUrl) {
-          await deleteFileFromUploadthing(extractFileKey(store.imageUrl)!);
+        payload.imageUrl = uploadResult[0].ufsUrl;
+      } else if (values.imageFile === null && store.imageUrl) {
+        // User wants to delete existing image
+        await deleteFileFromUploadthing(extractFileKey(store.imageUrl)!);
+        payload.imageUrl = null;
+      }
+      // If imageFile is undefined, we leave it unchanged
+
+      // --- Handle other fields ---
+      for (const key in values) {
+        if (key !== "storeName" && key !== "imageFile") {
+          const value = values[key as keyof EditStorePayload];
+          if (
+            value !== undefined &&
+            value !== store[key as keyof typeof store]
+          ) {
+            payload[key as keyof EditStorePayload] = value;
+          }
         }
-        imageUrl = null;
-      } else {
-        imageUrl = store.imageUrl;
       }
 
-      // Prepare payload
-      const payload: Partial<EditStorePayload> = {
-        ...values,
-        imageUrl,
-      };
-      delete payload.imageFile;
-
-      // Map storeName → DB column name
-      let newStoreName: string | undefined;
-      if (payload.storeName) {
-        newStoreName = payload.storeName;
-        //@ts-ignore
-        payload.name = payload.storeName;
-        delete payload.storeName;
-      }
-
-      // Update store
-      const updatedStore = await editStore(store.id, payload);
-      if (!updatedStore) {
-        showErrorToast();
+      // --- Skip update if nothing changed ---
+      if (Object.keys(payload).length === 0) {
+        showSuccessToast("No changes detected");
         return;
       }
 
-      // Update React Query cache
+      // --- Update store ---
+      const updatedStore = await editStore(store.id, payload);
+      if (!updatedStore) {
+        showErrorToast("Failed to update store");
+        return;
+      }
+
+      // --- Update context and React Query ---
+      setStore(updatedStore.data);
       queryClient.setQueryData(
         ["userStores", updatedStore.user],
-        (oldData: InferSelectModel<typeof stores>[] = []) =>
-          oldData.map((userStore) =>
-            userStore.id === store.id ? updatedStore.data : userStore
-          )
+        (oldData: any) =>
+          oldData.map((s: any) => (s.id === store.id ? updatedStore.data : s))
       );
 
-      setStore(updatedStore.data);
+      router.push(`/store/${toSlug(updatedStore.data.name)}/settings`);
 
-      showSuccessToast();
-    } catch (error: any) {
-      showErrorToast(error.message);
+      showSuccessToast("Store updated successfully");
+    } catch (err: any) {
+      showErrorToast(err.message);
     }
   };
 
