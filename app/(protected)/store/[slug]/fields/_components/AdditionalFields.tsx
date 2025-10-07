@@ -34,6 +34,7 @@ const AdditionalFields = () => {
     const updateStore = async () => {
       //@ts-ignore
       setStore({ ...store, additionalFields: debouncedValues });
+
       try {
         const data = await editStore(store?.id!, {
           //@ts-ignore

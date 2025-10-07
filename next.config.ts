@@ -6,10 +6,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    serverActions: {
-      bodySizeLimit: "10mb",
-    },
-    dynamicIO: true,
+    cacheComponents: true,
   },
   images: {
     domains: ["mu9dfcs0bu.ufs.sh", "utfs.io"],
