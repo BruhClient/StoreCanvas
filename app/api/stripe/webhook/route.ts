@@ -7,12 +7,6 @@ import { format } from "date-fns";
 import { db } from "@/db";
 import { paymentCards } from "@/db/schema";
 
-export const config = {
-  api: {
-    bodyParser: false, // Important to get raw request body
-  },
-};
-
 export async function POST(req: NextRequest) {
   const endpointSecret = env.STRIPE_WEBHOOK_SECRET;
 
