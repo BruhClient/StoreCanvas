@@ -5,17 +5,17 @@ import ProductGrid from "./_component/ProductGrid";
 const productSteps = [
   {
     target: ".create-product-button", // ✅ match your real button class
-    content: "Click here to create a new payment option.",
+    content: "Click here to create a new product",
     disableBeacon: true,
   },
   {
     target: ".create-product-category-button", // ✅ match your real button class
-    content: "Click here to create a new payment option.",
+    content: "Click here to create a new product category.",
     disableBeacon: true,
   },
   {
     target: ".product-filters", // ✅ match your real button class
-    content: "Click here to create a new payment option.",
+    content: "Filter your products by search or category.",
     disableBeacon: true,
   },
 
