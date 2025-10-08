@@ -23,7 +23,7 @@ import { ProductCategoriesSchema } from "@/schemas/store-steps";
 import CategoriesForm from "@/components/forms/AddProductCategoriesForm";
 import { Form } from "@/components/ui/form";
 
-const CategoryFilter = ({ categories }: { categories: string[] }) => {
+const ProductCategoryButton = ({ categories }: { categories: string[] }) => {
   const { store, setProductCategories, setProducts } = useStore();
   const addCategory = async (name: string) => {
     setProductCategories((prev) => [...prev, name]);
@@ -68,7 +68,11 @@ const CategoryFilter = ({ categories }: { categories: string[] }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"outline"} size={"icon"}>
+        <Button
+          variant={"outline"}
+          size={"icon"}
+          className="create-product-category-button"
+        >
           <Edit />
         </Button>
       </DialogTrigger>
@@ -95,4 +99,4 @@ const CategoryFilter = ({ categories }: { categories: string[] }) => {
   );
 };
 
-export default CategoryFilter;
+export default ProductCategoryButton;

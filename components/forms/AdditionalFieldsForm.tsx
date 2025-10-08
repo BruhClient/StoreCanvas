@@ -72,7 +72,7 @@ const AdditionalFieldsForm = ({
     <div className="space-y-2">
       <AddAdditionalFieldsDialog updateFields={addField}>
         <Button
-          className="w-full"
+          className="w-full create-field-button"
           size={"lg"}
           variant={"outline"}
           type="button"
@@ -80,7 +80,7 @@ const AdditionalFieldsForm = ({
           <Plus /> Add Field
         </Button>
       </AddAdditionalFieldsDialog>
-      <div className="space-y-3">
+      <div className="space-y-3 min-h-[300px] field-feed">
         <AnimatePresence>
           {additionalFields?.map((field) => {
             return (

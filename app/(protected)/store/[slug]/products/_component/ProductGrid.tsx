@@ -2,6 +2,7 @@
 
 import ProductCard from "@/components/ProductCard";
 import { useStore } from "@/context/store-context";
+import { Frown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
@@ -27,11 +28,18 @@ const ProductGrid = () => {
   }, [products, search, category]);
 
   return (
-    <div className="grid md:grid-cols-2 grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-      {filteredProducts.map((product) => (
-        <ProductCard product={product} key={product.id} />
-      ))}
-    </div>
+    <>
+      <div className="grid md:grid-cols-2 grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-2 product-feed">
+        {filteredProducts.map((product) => (
+          <ProductCard product={product} key={product.id} />
+        ))}
+      </div>
+      {filteredProducts.length === 0 && (
+        <div className="w-full flex justify-center items-center gap-2 text-muted-foreground font-bold">
+          <Frown size={20} /> You have no products
+        </div>
+      )}
+    </>
   );
 };
 

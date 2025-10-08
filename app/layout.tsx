@@ -3,7 +3,7 @@ import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import AppProvider from "@/components/AppProvider";
-import { PaymentSheet } from "@/components/pricing/PaymentSheet";
+
 const sans = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -32,7 +32,6 @@ export default function RootLayout({
         <AppProvider>
           {children}
           <Toaster />
-          <PaymentSheet />
         </AppProvider>
       </body>
     </html>

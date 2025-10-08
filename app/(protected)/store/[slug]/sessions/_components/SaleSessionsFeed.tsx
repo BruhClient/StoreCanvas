@@ -49,7 +49,7 @@ const SaleSessionsFeed = ({
   }, [entry?.isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-h-[300px] w-full session-feed">
       {saleSessions.map((session, idx) => {
         const isLast = idx === saleSessions.length - 1;
         const isActive = !session.endedAt;

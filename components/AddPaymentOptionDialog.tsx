@@ -61,7 +61,7 @@ const AddPaymentOptionDialog: React.FC<AddPaymentOptionDialogProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"outline"}>
+        <Button variant={"outline"} className="create-payment-button">
           <Plus /> Add Payment Option
         </Button>
       </DialogTrigger>

@@ -35,8 +35,9 @@ export function StoreSwitcher({}: {}) {
   const { data, isLoading } = useQuery({
     queryKey: ["userStores", user?.id],
     queryFn: async () => {
+      console.log("LOADING");
       const stores = await getUserStores(user!.id);
-
+      console.log("Stores", stores);
       if (!stores) return [];
       return stores;
     },
@@ -45,6 +46,9 @@ export function StoreSwitcher({}: {}) {
 
   const router = useRouter();
   const { store, isFetching } = useStore();
+
+  console.log(isLoading);
+  console.log(data);
   if (isLoading || !data || isFetching) {
     return <Skeleton className="w-full h-8" />;
   }

@@ -147,7 +147,6 @@ export const getStoreByName = async (name: string) => {
   const store = await db.query.stores.findFirst({
     where: eq(sql`LOWER(${stores.name})`, name.trim().toLowerCase()),
   });
-
   return store;
 };
 

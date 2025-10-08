@@ -1,5 +1,18 @@
+import OnboardingTour from "@/components/OnboardingTour";
 import AdditionalFields from "./_components/AdditionalFields";
 
+const fieldSteps = [
+  {
+    target: ".create-field-button", // ✅ match your real button class
+    content: "Click here to create a new field option.",
+    disableBeacon: true,
+  },
+  {
+    target: ".field-feed",
+    content: "This is your field feed, where all fields are displayed.",
+    disableBeacon: true,
+  },
+];
 const AdditionalFieldPage = () => {
   return (
     <div className="w-full flex flex-col items-center gap-4">
@@ -11,6 +24,7 @@ const AdditionalFieldPage = () => {
       </div>
 
       <AdditionalFields />
+      <OnboardingTour steps={fieldSteps} id="fields" />
     </div>
   );
 };

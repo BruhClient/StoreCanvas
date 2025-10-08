@@ -131,7 +131,11 @@ const StartSaleSessionButton = () => {
       setDialogOpen={setDialogOpen}
       dialogOpen={dialogOpen}
       buttonContent={
-        <Button variant="outline" disabled={isPending}>
+        <Button
+          variant="outline"
+          disabled={isPending}
+          className="start-session-button"
+        >
           <DoorOpen />
           {isPending ? "Opening..." : "Open Store"}
         </Button>

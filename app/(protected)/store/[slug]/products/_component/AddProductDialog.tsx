@@ -39,7 +39,7 @@ const AddProductDialog = () => {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant={"outline"}>
+        <Button variant={"outline"} className="create-product-button">
           <Plus /> Add Product
         </Button>
       </DialogTrigger>

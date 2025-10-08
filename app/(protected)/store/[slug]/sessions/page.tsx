@@ -8,6 +8,21 @@ import { Badge } from "@/components/ui/badge";
 import EndSaleSessionButton from "./_components/EndSaleSessionButton";
 import { getStoreByName } from "@/server/db/stores";
 import { redirect } from "next/navigation";
+import dynamic from "next/dynamic";
+import OnboardingTour from "@/components/OnboardingTour";
+
+const sessionSteps = [
+  {
+    target: ".session-feed",
+    content: "This is your session feed, where all sessions are displayed.",
+    disableBeacon: true,
+  },
+  {
+    target: ".start-session-button",
+    content: "Click here to create a new session.",
+    disableBeacon: true,
+  },
+];
 
 const StoreOrdersPage = async ({
   params,
@@ -49,8 +64,8 @@ const StoreOrdersPage = async ({
             View all previous sessions and orders
           </div>
         </div>
-
         <SaleSessionsFeed initialSaleSessions={saleSessions ?? []} />
+        <OnboardingTour id="sessions" steps={sessionSteps} delay={100} />;
       </div>
     </div>
   );
