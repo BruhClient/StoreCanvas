@@ -14,6 +14,11 @@ export function formatLongDate(date: Date | string | number): string {
   return format(parsedDate, "d MMMM yyyy");
 }
 
+export const formatDate = (date?: Date | string | null) => {
+  if (!date) return "Ongoing";
+  return format(new Date(date), "PPP p"); // e.g., Oct 6, 2025 7:30 PM
+};
+
 export const getDuration = (
   start: string | Date,
   end?: string | Date | null

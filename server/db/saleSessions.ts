@@ -72,6 +72,18 @@ export const createSaleSession = async (
   }
 };
 
+export const getSaleSession = async (id: string) => {
+  "use cache";
+  unstable_cacheTag("saleSession-" + id);
+  try {
+    const saleSession = await db.query.saleSessions.findFirst({
+      where: eq(saleSessions.id, id),
+    });
+    return saleSession;
+  } catch {
+    return null;
+  }
+};
 export const getSaleSessions = async (
   storeId: string,
   { limit = 10, offset = 0 }: { limit?: number; offset?: number } = {}

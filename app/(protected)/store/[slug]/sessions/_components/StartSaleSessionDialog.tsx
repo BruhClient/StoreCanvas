@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { set } from "date-fns";
 import { InferSelectModel } from "drizzle-orm";
 import { stores } from "@/db/schema";
+import { useRouter } from "next/navigation";
 
 const paymentOptions = [
   {
@@ -70,7 +71,7 @@ const StartSaleSessionButton = () => {
   const [cards, setCards] = useState<{ id: string; name: string }[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loadingCards, setLoadingCards] = useState(false);
-
+  const router = useRouter();
   useEffect(() => {
     if (!user) return;
 
@@ -118,6 +119,8 @@ const StartSaleSessionButton = () => {
       setStore((prev) => {
         return { ...prev, isOpen: true };
       });
+
+      router.push(`/store/${store.name}/sessions/${data.session.id}`);
     } catch {
       showErrorToast();
     } finally {

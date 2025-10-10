@@ -157,6 +157,11 @@ const AddProductDialogForm = ({
           {currentStep === 2 && (
             <Step key={"step-2"}>
               <div className="flex gap-2 flex-wrap">
+                {productCategories.length === 0 && (
+                  <div className="text-muted-foreground text-sm">
+                    No Product Categories Found
+                  </div>
+                )}
                 {productCategories?.map((category) => {
                   const selectedCategories = form.watch("categories");
                   const isSelected = selectedCategories.includes(category);

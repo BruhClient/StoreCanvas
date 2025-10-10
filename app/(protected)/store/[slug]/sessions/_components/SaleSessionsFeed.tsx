@@ -13,16 +13,12 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Activity, Clock, CreditCard, Package } from "lucide-react";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { format } from "date-fns";
-import { getDuration } from "@/lib/date";
-
-const formatDate = (date?: string | null) => {
-  if (!date) return "Ongoing";
-  return format(new Date(date), "PPP p"); // e.g., Oct 6, 2025 7:30 PM
-};
+import { formatDate, getDuration } from "@/lib/date";
+import { useRouter } from "next/navigation";
+import { toSlug } from "@/lib/slug";
 
 const SaleSessionsFeed = ({
   initialSaleSessions,
@@ -30,7 +26,7 @@ const SaleSessionsFeed = ({
   initialSaleSessions: InferSelectModel<typeof saleSessions>[];
 }) => {
   const { store } = useStore();
-
+  const router = useRouter();
   const { saleSessions, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSaleSessions({
       storeId: store.id,
@@ -58,7 +54,12 @@ const SaleSessionsFeed = ({
           <Card
             key={session.id}
             ref={isLast ? ref : undefined}
-            className={`border shadow-sm transition-shadow duration-200 hover:shadow-md ${
+            onClick={() => {
+              router.push(
+                `/store/${toSlug(store.name)}/sessions/${session.id}`
+              );
+            }}
+            className={`border shadow-sm transition-shadow duration-200 hover:shadow-md cursor-pointer ${
               isActive ? "border-green-400" : "border-gray-200"
             }`}
           >
