@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
 import { StoreProvider } from "@/context/store-context";
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import { Separator } from "@/components/ui/separator";
-import StoreBreadcrumb from "@/components/sidebar/store-breadcrumb";
 import { auth } from "@/lib/auth";
 import { fromSlug } from "@/lib/slug";
 import { getStoreByName } from "@/server/db/stores";
