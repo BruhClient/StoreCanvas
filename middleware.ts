@@ -5,6 +5,7 @@ import {
   ACCOUNT_VERIFICATION_PREFIX,
   API_ROUTE_PREFIX,
   AUTH_ROUTES,
+  CANVAS_ROUTE,
   DEFAULT_ROUTE,
   LOGIN_ROUTE,
   PUBLIC_ROUTES,
@@ -20,7 +21,8 @@ export default auth((req) => {
     nextUrl.pathname.includes(API_ROUTE_PREFIX) ||
     nextUrl.pathname.includes(ACCOUNT_VERIFICATION_PREFIX) ||
     nextUrl.pathname.includes(UPLOADTHING_PREFIX) ||
-    nextUrl.pathname.includes(STRIPE_WEBHOOK_ROUTE)
+    nextUrl.pathname.includes(STRIPE_WEBHOOK_ROUTE) ||
+    nextUrl.pathname.includes(CANVAS_ROUTE)
   ) {
     return NextResponse.next();
   }

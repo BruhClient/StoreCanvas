@@ -4,7 +4,7 @@ import ProductCard from "@/components/ProductCard";
 import { useStore } from "@/context/store-context";
 import { Frown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 const ProductGrid = () => {
   const { products } = useStore();

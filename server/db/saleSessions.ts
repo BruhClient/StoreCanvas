@@ -84,6 +84,20 @@ export const getSaleSession = async (id: string) => {
     return null;
   }
 };
+
+export const getActiveSaleSession = async (storeId: string) => {
+  try {
+    const saleSession = await db.query.saleSessions.findFirst({
+      where: and(
+        isNull(saleSessions.endedAt),
+        eq(saleSessions.storeId, storeId)
+      ),
+    });
+    return saleSession;
+  } catch {
+    return null;
+  }
+};
 export const getSaleSessions = async (
   storeId: string,
   { limit = 10, offset = 0 }: { limit?: number; offset?: number } = {}

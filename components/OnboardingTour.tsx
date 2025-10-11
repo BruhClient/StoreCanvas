@@ -26,7 +26,6 @@ export default function OnboardingTour({
     setMounted(true);
   }, []);
 
-  console.log(run);
   useEffect(() => {
     const hasSeenTour = localStorage.getItem(`onboarding-${id}`);
     if (!initialRun || hasSeenTour) return;
@@ -56,7 +55,6 @@ export default function OnboardingTour({
       tooltipComponent={CustomTooltip}
       styles={{ options: { primaryColor: "#3b82f6", zIndex: 10000 } }}
       callback={(data) => {
-        console.log(data);
         if (data.status === "finished" || data.status === "skipped") {
           localStorage.setItem(`onboarding-${id}`, "true");
           setRun(false);
