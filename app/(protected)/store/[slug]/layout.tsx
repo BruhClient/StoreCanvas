@@ -63,20 +63,9 @@ export const mockCategories = [
 
 interface StoreDetailsLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ slug: string }>;
 }
 
-export const StoreDetailsLayout = async ({
-  children,
-  params,
-}: StoreDetailsLayoutProps) => {
-  const slug = (await params).slug;
-  const session = await auth();
-
-  if (!session) {
-    redirect("/signin");
-  }
-
+export const StoreDetailsLayout = ({ children }: StoreDetailsLayoutProps) => {
   const initialData = {
     store: mockStore as InferSelectModel<typeof stores>,
     products: [],
