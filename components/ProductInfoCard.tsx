@@ -1,7 +1,13 @@
 import { productCategories, products } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardTitle } from "./ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 import Image from "next/image";
 import {
   Dialog,
@@ -32,7 +38,7 @@ export type ProductWithCategories = InferSelectModel<typeof products> & {
   categories: string[];
 };
 
-const ProductCard = ({ product }: { product: ProductWithCategories }) => {
+const ProductInfoCard = ({ product }: { product: ProductWithCategories }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { store, productCategories, products } = useStore();
   const { update, remove } = useProducts(store?.id!);
@@ -58,8 +64,8 @@ const ProductCard = ({ product }: { product: ProductWithCategories }) => {
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Card className="rounded-2xl shadow-lg overflow-hidden hover:bg-muted cursor-pointer transition-all ease-in-out duration-200">
-          <CardContent className="flex gap-3 flex-col">
-            <div className="rounded-lg relative overflow-hidden border-2 w-full h-50 flex items-center justify-center">
+          <CardContent className="flex gap-4 items-center">
+            <div className="relative w-[100px] h-[100px]">
               {product.images?.length === 0 ? (
                 <Image
                   src="/placeholder-image.png"
@@ -76,16 +82,18 @@ const ProductCard = ({ product }: { product: ProductWithCategories }) => {
                 />
               )}
             </div>
-            <div className="flex-1 p-2 flex flex-col gap-1 ">
-              <div className="flex justify-between w-full items-center">
+
+            <div className="flex-1">
+              <div>
                 <CardTitle>{product.name}</CardTitle>
-                <CardDescription>${product.price}</CardDescription>
+                <CardDescription>
+                  {" "}
+                  {product.description
+                    ? product.description
+                    : "no description..."}
+                </CardDescription>
               </div>
-              <div className="text-muted-foreground font-serif text-xs flex-1 line-clamp-2">
-                {product.description
-                  ? product.description
-                  : "no description..."}
-              </div>
+              <div className="font-bold text-lg pt-3">$ {product.price}</div>
             </div>
           </CardContent>
         </Card>
@@ -126,4 +134,4 @@ const ProductCard = ({ product }: { product: ProductWithCategories }) => {
   );
 };
 
-export default ProductCard;
+export default ProductInfoCard;

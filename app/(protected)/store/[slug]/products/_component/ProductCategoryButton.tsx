@@ -68,12 +68,8 @@ const ProductCategoryButton = ({ categories }: { categories: string[] }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant={"outline"}
-          size={"icon"}
-          className="create-product-category-button"
-        >
-          <Edit />
+        <Button variant={"outline"} className="create-product-category-button">
+          <Edit /> Edit Product Categories
         </Button>
       </DialogTrigger>
       <DialogContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import ProductCard from "@/components/ProductCard";
+import ProductInfoCard from "@/components/ProductInfoCard";
 import { useStore } from "@/context/store-context";
 import { Frown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -31,7 +31,7 @@ const ProductGrid = () => {
     <>
       <div className="grid md:grid-cols-2 grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-2 product-feed">
         {filteredProducts.map((product) => (
-          <ProductCard product={product} key={product.id} />
+          <ProductInfoCard product={product} key={product.id} />
         ))}
       </div>
       {filteredProducts.length === 0 && (
