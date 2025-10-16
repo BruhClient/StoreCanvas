@@ -13,3 +13,5 @@ export const ACCOUNT_VERIFICATION_PREFIX = "/account-verification";
 export const STRIPE_WEBHOOK_ROUTE = "/api/stripe/webhook";
 
 export const API_ROUTE_PREFIX = "/api/auth";
+
+export const CANVAS_ROUTE = "/canvas";

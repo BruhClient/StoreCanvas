@@ -1,13 +1,9 @@
 //@ts-nocheck
 "use client";
-import DeleteStoreButton from "@/components/DeleteStoreButton";
-import StoreDescriptionForm from "@/components/forms/StoreDescriptionForm";
-import StoreInformationForm from "@/components/forms/StoreInformationForm";
-import StoreSocialsForm from "@/components/forms/StoreSocialsForm";
+
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useStore } from "@/context/store-context";
-import { stores } from "@/db/schema";
 import { toSlug } from "@/lib/slug";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { useUploadThing } from "@/lib/uploadthing";
@@ -17,26 +13,50 @@ import { deleteFileFromUploadthing } from "@/server/actions/uploadthing";
 import { editStore } from "@/server/db/stores";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { InferSelectModel } from "drizzle-orm";
 import { Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useMemo } from "react";
 import { useForm } from "react-hook-form";
+import dynamic from "next/dynamic";
+
+// Lazy-load the child form components
+const StoreInformationForm = dynamic(
+  () => import("@/components/forms/StoreInformationForm"),
+  { ssr: false }
+);
+const StoreDescriptionForm = dynamic(
+  () => import("@/components/forms/StoreDescriptionForm"),
+  { ssr: false }
+);
+const StoreSocialsForm = dynamic(
+  () => import("@/components/forms/StoreSocialsForm"),
+  { ssr: false }
+);
+const DeleteStoreButton = dynamic(
+  () => import("@/components/DeleteStoreButton"),
+  { ssr: false }
+);
 
 const StoreSettingsPage = () => {
   const { store, setStore } = useStore();
-  const form = useForm<EditStorePayload>({
-    resolver: zodResolver(EditStoreSchema),
-    defaultValues: {
+
+  // Memoize default values to avoid recalculating on every render
+  const defaultValues = useMemo(
+    () => ({
       storeName: store?.name,
       imageFile: store?.imageUrl,
       ...store,
-    },
+    }),
+    [store]
+  );
+
+  const form = useForm<EditStorePayload>({
+    resolver: zodResolver(EditStoreSchema),
+    defaultValues,
   });
+
   const { startUpload } = useUploadThing("storeImages");
-
   const queryClient = useQueryClient();
-
   const router = useRouter();
 
   const onSubmit = async (values: EditStorePayload) => {
@@ -50,7 +70,6 @@ const StoreSettingsPage = () => {
 
       // --- Handle image ---
       if (values.imageFile instanceof File) {
-        // User uploaded a new image → replace existing
         if (store.imageUrl)
           await deleteFileFromUploadthing(extractFileKey(store.imageUrl)!);
 
@@ -59,11 +78,9 @@ const StoreSettingsPage = () => {
 
         payload.imageUrl = uploadResult[0].ufsUrl;
       } else if (values.imageFile === null && store.imageUrl) {
-        // User wants to delete existing image
         await deleteFileFromUploadthing(extractFileKey(store.imageUrl)!);
         payload.imageUrl = null;
       }
-      // If imageFile is undefined, we leave it unchanged
 
       // --- Handle other fields ---
       for (const key in values) {
@@ -78,20 +95,17 @@ const StoreSettingsPage = () => {
         }
       }
 
-      // --- Skip update if nothing changed ---
       if (Object.keys(payload).length === 0) {
         showSuccessToast("No changes detected");
         return;
       }
 
-      // --- Update store ---
       const updatedStore = await editStore(store.id, payload);
       if (!updatedStore) {
         showErrorToast("Failed to update store");
         return;
       }
 
-      // --- Update context and React Query ---
       setStore(updatedStore.data);
       queryClient.setQueryData(
         ["userStores", updatedStore.user],
@@ -100,7 +114,6 @@ const StoreSettingsPage = () => {
       );
 
       router.push(`/store/${toSlug(updatedStore.data.name)}/settings`);
-
       showSuccessToast("Store updated successfully");
     } catch (err: any) {
       showErrorToast(err.message);
@@ -108,7 +121,7 @@ const StoreSettingsPage = () => {
   };
 
   return (
-    <div className="flex justify-center w-full py-3 ">
+    <div className="flex justify-center w-full py-3">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -120,12 +133,13 @@ const StoreSettingsPage = () => {
 
           <Button
             className="w-full"
-            variant={"outline"}
+            variant="outline"
             disabled={!form.formState.isDirty || form.formState.isSubmitting}
           >
             <Edit />
             Save Changes
           </Button>
+
           <DeleteStoreButton store={store} />
         </form>
       </Form>
