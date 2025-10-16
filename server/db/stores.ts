@@ -160,24 +160,26 @@ export const editStore = async (
     return null;
   }
   try {
-    let originalName;
     if (fields.name) {
-      const originalStore = await db.query.stores.findFirst({
-        columns: { name: true },
-        where: eq(stores.id, id),
-      });
-      originalName = originalStore?.name;
+      const orginalStore = await db
+        .select({ name: stores.name })
+        .from(stores)
+        .where(eq(stores.id, id));
+
+      revalidatePath("store-" + orginalStore[0].name.toLowerCase());
     }
+
     const store = await db
       .update(stores)
       .set(fields)
       .where(and(eq(stores.id, id), eq(stores.ownerId, session.user.id)))
       .returning();
-    if (fields.name) {
-      revalidateTag("store-" + originalName?.toLowerCase());
-      revalidateTag("store-" + fields.name?.toLowerCase());
-    }
 
+    revalidateTag("store-" + store[0].name?.toLowerCase());
+
+    if (fields.name) {
+      revalidateTag("stores-" + session.user.id);
+    }
     return {
       success: true,
       data: store[0],

@@ -5,12 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useStore } from "@/context/store-context";
 import { toSlug } from "@/lib/slug";
-import { showErrorToast, showSuccessToast } from "@/lib/toast";
+import {
+  showErrorToast,
+  showLoadingToast,
+  showSuccessToast,
+} from "@/lib/toast";
 import { useUploadThing } from "@/lib/uploadthing";
 import { extractFileKey } from "@/lib/utils";
 import { EditStorePayload, EditStoreSchema } from "@/schemas/edit-store";
 import { deleteFileFromUploadthing } from "@/server/actions/uploadthing";
-import { editStore } from "@/server/db/stores";
+import { editStore, getStoreByName } from "@/server/db/stores";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
@@ -18,6 +22,7 @@ import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 
 // Lazy-load the child form components
 const StoreInformationForm = dynamic(
@@ -56,15 +61,21 @@ const StoreSettingsPage = () => {
   });
 
   const { startUpload } = useUploadThing("storeImages");
-  const queryClient = useQueryClient();
+
   const router = useRouter();
 
   const onSubmit = async (values: EditStorePayload) => {
+    const toastId = showLoadingToast("Saving changes");
     try {
       const payload: Partial<EditStorePayload> = {};
 
       // --- Handle store name ---
       if (values.storeName && values.storeName.trim() !== store.name) {
+        const existingStore = await getStoreByName(values.storeName.trim());
+
+        if (existingStore) {
+          throw Error("Store name already exist");
+        }
         payload.name = values.storeName.trim();
       }
 
@@ -107,16 +118,16 @@ const StoreSettingsPage = () => {
       }
 
       setStore(updatedStore.data);
-      queryClient.setQueryData(
-        ["userStores", updatedStore.user],
-        (oldData: any) =>
-          oldData.map((s: any) => (s.id === store.id ? updatedStore.data : s))
-      );
 
-      router.push(`/store/${toSlug(updatedStore.data.name)}/settings`);
       showSuccessToast("Store updated successfully");
+
+      if (payload.name) {
+        router.replace(`/store/${toSlug(updatedStore.data.name)}/settings`);
+      }
     } catch (err: any) {
       showErrorToast(err.message);
+    } finally {
+      toast.dismiss(toastId);
     }
   };
 

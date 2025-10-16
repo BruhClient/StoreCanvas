@@ -37,8 +37,6 @@ const page = async ({
     redirect(`/store/${toSlug(slug)}/sessions`);
   }
 
-  console.log(session);
-
   return (
     <div className="space-y-2">
       <div className="w-full flex justify-between items-center">

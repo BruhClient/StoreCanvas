@@ -6,7 +6,6 @@ const StoreSwitcherWrapper = async () => {
   const session = await auth();
   const stores = await getUserStores(session?.user.id!);
 
-  console.log(stores);
   return <StoreSwitcher userStores={stores} />;
 };
 
