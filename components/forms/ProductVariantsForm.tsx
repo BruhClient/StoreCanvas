@@ -11,6 +11,7 @@ const ProductVariantsForm = ({ form }: { form: any }) => {
   const variants = watch("variants");
 
   const removeVariant = (prompt: string) => {
+    console.log(prompt);
     setValue(
       "variants",
       variants.filter((variant: any) => variant.optionPrompt !== prompt)

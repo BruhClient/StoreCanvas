@@ -68,7 +68,9 @@ export default function AddProductVariantDialog({
 
   const { setValue: setProductValue, watch: watchProduct } = productForm;
   const variants = watchProduct("variants");
-  const { setValue, handleSubmit, getValues } = form;
+  const { setValue, handleSubmit, getValues, watch } = form;
+
+  const options = watch("options");
 
   const addOption = (name: string, price: number) => {
     setValue("options", [...getValues("options"), { name, price }]);
@@ -168,7 +170,7 @@ export default function AddProductVariantDialog({
                 {/* Options Preview */}
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
                   <AnimatePresence mode="sync">
-                    {getValues("options").map((option, idx) => (
+                    {options.map((option, idx) => (
                       <MotionDiv
                         key={`${option.name}-${idx}`}
                         variants={containerVariants}

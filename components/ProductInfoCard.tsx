@@ -19,7 +19,7 @@ import {
 } from "./ui/dialog";
 import AddProductDialogForm from "./forms/AddProductDialogForm";
 import { useQueryClient } from "@tanstack/react-query";
-import { useStore } from "@/context/store-context";
+import { ProductWithCategories, useStore } from "@/context/store-context";
 import { updateProduct } from "@/server/db/products";
 import { CreateProductPayload } from "@/schemas/create-product";
 import { useProducts } from "@/hooks/useProducts";
@@ -33,10 +33,7 @@ import {
 import { Button } from "./ui/button";
 import { Trash } from "lucide-react";
 import { ConfirmAlertDialog } from "./ConfirmAlertDialog";
-
-export type ProductWithCategories = InferSelectModel<typeof products> & {
-  categories: string[];
-};
+import FlexImage from "./FlexImage";
 
 const ProductInfoCard = ({ product }: { product: ProductWithCategories }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -65,35 +62,28 @@ const ProductInfoCard = ({ product }: { product: ProductWithCategories }) => {
       <DialogTrigger asChild>
         <Card className="rounded-2xl shadow-lg overflow-hidden hover:bg-muted cursor-pointer transition-all ease-in-out duration-200">
           <CardContent className="flex gap-4 items-center">
-            <div className="relative w-[100px] h-[100px]">
-              {product.images?.length === 0 ? (
-                <Image
-                  src="/placeholder-image.png"
-                  alt={product.name}
-                  fill
-                  className="object-cover rounded-md"
-                />
-              ) : (
-                <Image
-                  src={product.images![0] as string}
-                  alt={product.name}
-                  fill
-                  className="object-cover rounded-md"
-                />
-              )}
-            </div>
+            <FlexImage
+              src={
+                product.images?.length === 0
+                  ? "/placeholder-image.png"
+                  : product.images![0]
+              }
+              alt={product.name}
+              width={100}
+              height={100}
+            />
 
             <div className="flex-1">
-              <div>
+              <div className="space-y-2">
                 <CardTitle>{product.name}</CardTitle>
-                <CardDescription>
+                <CardDescription className="line-clamp-2 text-xs">
                   {" "}
                   {product.description
                     ? product.description
-                    : "no description..."}
+                    : "No product description found"}
                 </CardDescription>
               </div>
-              <div className="font-bold text-lg pt-3">$ {product.price}</div>
+              <div className="font-bold text-lg pt-4">$ {product.price}</div>
             </div>
           </CardContent>
         </Card>

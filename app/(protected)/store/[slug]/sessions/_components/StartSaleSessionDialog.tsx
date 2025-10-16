@@ -35,6 +35,7 @@ import { set } from "date-fns";
 import { InferSelectModel } from "drizzle-orm";
 import { stores } from "@/db/schema";
 import { useRouter } from "next/navigation";
+import { toSlug } from "@/lib/slug";
 
 const paymentOptions = [
   {
@@ -120,7 +121,7 @@ const StartSaleSessionButton = () => {
         return { ...prev, isOpen: true };
       });
 
-      router.push(`/store/${store.name}/sessions/${data.session.id}`);
+      router.push(`/store/${toSlug(store.name)}/sessions/${data.session.id}`);
     } catch {
       showErrorToast();
     } finally {

@@ -17,6 +17,7 @@ interface DialogButtonProps {
   title?: string; // Optional title for the dialog header
   dialogOpen?: boolean;
   setDialogOpen?: Dispatch<SetStateAction<boolean>>;
+  onDialogOpen?: () => void; // Callback when dialog opens
 }
 
 const DialogButton: React.FC<DialogButtonProps> = ({
@@ -26,10 +27,26 @@ const DialogButton: React.FC<DialogButtonProps> = ({
   dialogOpen,
   setDialogOpen,
   title,
+  onDialogOpen,
 }) => {
   const [open, setOpen] = useState(false);
+
+  const handleOpenChange = (value: boolean) => {
+    // Update internal or external state
+    if (setDialogOpen) {
+      setDialogOpen(value);
+    } else {
+      setOpen(value);
+    }
+
+    // Call callback if dialog is opening
+    if (value && onDialogOpen) {
+      onDialogOpen();
+    }
+  };
+
   return (
-    <Dialog open={dialogOpen ?? open} onOpenChange={setDialogOpen ?? setOpen}>
+    <Dialog open={dialogOpen ?? open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{buttonContent}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         {title && (

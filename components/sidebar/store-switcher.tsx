@@ -20,34 +20,26 @@ import {
 } from "@/components/ui/sidebar";
 import { getUserStores } from "@/server/db/stores";
 import { useRouter } from "next/navigation";
-import { formatLongDate } from "@/lib/date";
 import { toSlug } from "@/lib/slug";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import useSessionUser from "@/hooks/use-session-user";
 import { Skeleton } from "../ui/skeleton";
 import { useStore } from "@/context/store-context";
+import { InferSelectModel } from "drizzle-orm";
+import { stores } from "@/db/schema";
 
-export function StoreSwitcher({}: {}) {
+export function StoreSwitcher({
+  userStores,
+}: {
+  userStores: InferSelectModel<typeof stores>[];
+}) {
   const { isMobile } = useSidebar();
 
   const user = useSessionUser();
-  const { data, isLoading } = useQuery({
-    queryKey: ["userStores", user?.id],
-    queryFn: async () => {
-      const stores = await getUserStores(user!.id);
-      if (!stores) return [];
-      return stores;
-    },
-    enabled: !!user,
-  });
 
   const router = useRouter();
   const { store, isFetching } = useStore();
-
-  if (isLoading || !data || isFetching) {
-    return <Skeleton className="w-full h-8" />;
-  }
 
   return (
     <SidebarMenu>
@@ -102,7 +94,7 @@ export function StoreSwitcher({}: {}) {
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Stores
             </DropdownMenuLabel>
-            {data!.map((userStore, index) => (
+            {userStores!.map((userStore, index) => (
               <DropdownMenuItem
                 key={userStore.name}
                 onClick={() => {

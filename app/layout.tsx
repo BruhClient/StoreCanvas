@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
+import { Inter, Urbanist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import AppProvider from "@/components/AppProvider";
 
-const sans = Manrope({
+const sans = Urbanist({
   variable: "--font-sans",
   subsets: ["latin"],
 });
