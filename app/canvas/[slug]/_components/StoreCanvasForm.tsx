@@ -110,7 +110,7 @@ export default function StoreCanvasForm({
           size={"icon"}
           variant={"outline"}
           onClick={next}
-          disabled={step >= sections.length - 1}
+          disabled={step >= sections.length - 1 || !store.isOpen}
         >
           <ChevronUp />
         </Button>
