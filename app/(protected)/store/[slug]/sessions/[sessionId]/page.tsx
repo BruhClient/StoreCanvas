@@ -14,6 +14,9 @@ import {
 import { Clock, CreditCard, Wallet } from "lucide-react";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import BackButton from "@/components/BackButton";
+import EndSaleSessionButton from "../_components/EndSaleSessionButton";
+import StartSaleSessionButton from "../_components/StartSaleSessionDialog";
 
 const page = async ({
   params,
@@ -34,8 +37,14 @@ const page = async ({
     redirect(`/store/${toSlug(slug)}/sessions`);
   }
 
+  console.log(session);
+
   return (
-    <div>
+    <div className="space-y-2">
+      <div className="w-full flex justify-between items-center">
+        <BackButton />
+        {session.endedAt === null && <EndSaleSessionButton />}
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         <Card>
           <CardHeader>

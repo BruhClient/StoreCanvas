@@ -1,7 +1,11 @@
 import React from "react";
 
 const loading = () => {
-  return <div className="w-full">Loading Session data</div>;
+  return (
+    <div className="w-full h-full flex justify-center items-center">
+      Loading your session data...
+    </div>
+  );
 };
 
 export default loading;

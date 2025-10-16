@@ -25,7 +25,7 @@ export default function FlexImage({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-${rounded} ${className}`}
+      className={`relative overflow-hidden rounded-${rounded} ${className} `}
       style={{
         width: typeof width === "number" ? `${width}px` : width,
         height: typeof height === "number" ? `${height}px` : height,

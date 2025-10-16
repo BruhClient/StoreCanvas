@@ -240,7 +240,9 @@ export const closeStore = async (id: string) => {
     }
     revalidateTag("saleSessions-" + updatedStore[0].id);
     revalidateTag("store-" + updatedStore[0].id);
-
+    revalidatePath(
+      `/store/${toSlug(updatedStore[0].name)}/sessions/${endedSession?.id}`
+    );
     revalidatePath(`/store/${toSlug(updatedStore[0].name)}/sessions`);
 
     return {
