@@ -12,20 +12,24 @@ const StoreSocialsForm = ({
 }) => {
   return (
     <div className="space-y-5 ">
-      <NullableInput control={form.control} name="address" label="Address" />
       <NullableInput
         control={form.control}
         name="instagram"
-        label="Instagram"
+        label="Instagram Link"
       />
+      <NullableInput
+        control={form.control}
+        name="telegram"
+        label="Telegram Link"
+      />
+      <NullableInput control={form.control} name="tiktok" label="Tiktok Link" />
       <NullableInput control={form.control} name="whatsapp" label="Whatsapp" />
+      <NullableInput control={form.control} name="address" label="Address" />
       <NullableInput
         control={form.control}
         name="phoneNumber"
         label="Phone Number"
       />
-      <NullableInput control={form.control} name="telegram" label="Telegram" />
-      <NullableInput control={form.control} name="tiktok" label="Tiktok" />
     </div>
   );
 };

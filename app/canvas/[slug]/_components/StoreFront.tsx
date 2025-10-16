@@ -12,8 +12,13 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { stores, users } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import React from "react";
-import { Info, ShoppingCart } from "lucide-react";
+import { Info, Instagram, ShoppingCart } from "lucide-react";
+import DialogButton from "@/components/DialogButton";
+import { PiTelegramLogo, PiTiktokLogo } from "react-icons/pi";
 
+const socialIcons = {
+  instagram: Instagram,
+};
 const StoreFront = ({
   store,
   user,
@@ -41,12 +46,6 @@ const StoreFront = ({
 
           <CardTitle className="text-2xl text-center">{store.name}</CardTitle>
 
-          {store.description && (
-            <CardDescription className="text-center text-muted-foreground text-sm">
-              {store.description}
-            </CardDescription>
-          )}
-
           <div className="flex items-center gap-2 mt-2">
             {user.image ? (
               <Avatar className="w-8 h-8">
@@ -70,18 +69,50 @@ const StoreFront = ({
             size="lg"
             className="w-full font-medium flex items-center justify-center gap-2"
             onClick={() => next()}
+            disabled={!store.isOpen}
           >
             <ShoppingCart className="w-4 h-4" />
             {store.isOpen ? "Start Ordering" : "Store is Closed"}
           </Button>
-
-          <Button
-            variant="ghost"
-            className="w-full text-sm text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
+          <DialogButton
+            buttonContent={
+              <Button
+                variant="ghost"
+                className="w-full text-sm text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
+              >
+                <Info className="w-4 h-4" />
+                About Us
+              </Button>
+            }
+            title={store.name}
+            description={store.description ?? "Store description not found"}
           >
-            <Info className="w-4 h-4" />
-            About Us
-          </Button>
+            <div className="space-y-2">
+              <div className="text-sm text-muted-foreground">
+                {store.phoneNumber && (
+                  <div>Phone Number : {store.phoneNumber}</div>
+                )}
+                {store.phoneNumber && <div>Address: {store.address}</div>}
+              </div>
+              <div className="w-full flex gap-2 flex-wrap">
+                {store.instagram && (
+                  <Button size={"icon"} variant={"outline"}>
+                    <Instagram />
+                  </Button>
+                )}
+                {store.tiktok && (
+                  <Button size={"icon"} variant={"outline"}>
+                    <PiTiktokLogo />
+                  </Button>
+                )}
+                {store.telegram && (
+                  <Button size={"icon"} variant={"outline"}>
+                    <PiTelegramLogo />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </DialogButton>
         </CardContent>
 
         <CardFooter className="pt-0" />
