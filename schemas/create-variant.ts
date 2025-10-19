@@ -8,7 +8,8 @@ export const VariantOptionSchema = z.object({
 
 export const VariantSchema = z.object({
   optionPrompt: z.string().min(1, "Prompt is required").trim(),
-  allowMultiple: z.boolean(),
+  required: z.boolean(),
+  maxSelections: z.number().int().positive(),
   options: z.array(VariantOptionSchema).min(1, "At least one option required"),
 });
 

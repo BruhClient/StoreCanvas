@@ -53,7 +53,7 @@ export default function AddProductVariantDialog({
     resolver: zodResolver(VariantSchema),
     defaultValues: values
       ? values
-      : { optionPrompt: "", allowMultiple: false, options: [] },
+      : { optionPrompt: "", required: true, options: [], maxSelections: 1 },
   });
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function AddProductVariantDialog({
       if (values) {
         form.reset(values); // editing -> load existing variant
       } else {
-        form.reset({ optionPrompt: "", allowMultiple: false, options: [] }); // adding -> fresh form
+        form.reset(); // adding -> fresh form
       }
     }
   }, [variantDialogOpen, values]);
@@ -150,7 +150,6 @@ export default function AddProductVariantDialog({
                   </FormItem>
                 )}
               />
-
               {/* Options */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -200,11 +199,10 @@ export default function AddProductVariantDialog({
                   </AnimatePresence>
                 </div>
               </div>
-
               {/* Allow multiple */}
               <FormField
                 control={form.control}
-                name="allowMultiple"
+                name="required"
                 render={({ field }) => (
                   <FormItem className="flex items-center space-x-2">
                     <FormControl>
@@ -213,11 +211,37 @@ export default function AddProductVariantDialog({
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <FormLabel>Allow multiple options</FormLabel>
+                    <FormLabel>Required</FormLabel>
                   </FormItem>
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="maxSelections"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Maximum number of selections</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={options.length || 1}
+                        value={field.value ?? 1}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          const cappedValue = Math.min(
+                            Math.max(1, value),
+                            options.length || 1
+                          );
+                          field.onChange(cappedValue);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button type="submit" className="w-full">
                 Save Variant
               </Button>

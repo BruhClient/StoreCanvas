@@ -10,6 +10,7 @@ import { X } from "lucide-react";
 import { MotionDiv } from "./Motion";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
+import FlexImage from "./FlexImage";
 
 type ImageUploadFieldProps<T> = {
   name: keyof T;
@@ -123,11 +124,11 @@ export default function ImageUploadFormField<T>({
               <DialogContent className="flex w-full justify-center items-center">
                 <DialogTitle></DialogTitle>
 
-                <Image
+                <FlexImage
                   src={src}
                   alt={`preview-${index}`}
-                  width={500}
-                  height={500}
+                  width={400}
+                  height={400}
                   className="object-cover "
                 />
               </DialogContent>

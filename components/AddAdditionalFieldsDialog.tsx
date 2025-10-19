@@ -2,8 +2,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import {
   Select,
@@ -12,16 +17,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "./ui/input";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CreateAdditionalFieldsSchema,
   CreateAdditionalFieldsPayload,
 } from "@/schemas/create-addtional-fields";
-import { Form, FormField, FormItem, FormControl, FormMessage } from "./ui/form";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+  FormLabel,
+} from "@/components/ui/form";
 
 const AddAdditionalFieldsDialog = ({
   updateFields,
@@ -33,93 +45,96 @@ const AddAdditionalFieldsDialog = ({
   values?: CreateAdditionalFieldsPayload;
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const form = useForm<CreateAdditionalFieldsPayload>({
     resolver: zodResolver(CreateAdditionalFieldsSchema),
     defaultValues: {
       prompt: "",
       type: "text",
       options: [],
-      allowMultipleOptions: false,
+      required: true,
+      maxSelections: 1,
     },
   });
 
-  useEffect(() => {
-    if (isDialogOpen) {
-      if (values) {
-        form.reset(values); // editing -> load existing variant
-      } else {
-        form.reset({
-          prompt: "",
-          type: "text",
-          options: [],
-          allowMultipleOptions: false,
-        }); // adding -> fresh form
-      }
-    }
-  }, [isDialogOpen, values]);
-
-  const { control, handleSubmit, watch, setValue } = form;
+  const { control, handleSubmit, watch, setValue, reset } = form;
   const type = watch("type");
+  const options = watch("options");
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "options",
   });
 
-  const onSubmit = (data: CreateAdditionalFieldsPayload) => {
-    let formattedData;
-    if (data.type === "text") {
-      formattedData = {
-        ...data,
-        options: [],
-      };
-    } else {
-      formattedData = data;
+  useEffect(() => {
+    if (isDialogOpen) {
+      reset(
+        values ?? {
+          prompt: "",
+          type: "text",
+          options: [],
+          required: true,
+          maxSelections: 1,
+        }
+      );
     }
+  }, [isDialogOpen, values, reset]);
 
-    console.log("Form data:", formattedData);
+  const onSubmit = (data: CreateAdditionalFieldsPayload) => {
+    const formattedData =
+      data.type === "text" ? { ...data, options: [] } : data;
 
     updateFields(formattedData);
-    form.reset();
+    reset();
     setIsDialogOpen(false);
   };
 
   return (
     <Dialog onOpenChange={setIsDialogOpen} open={isDialogOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
-        <DialogTitle>Add Additional Field</DialogTitle>
+      <DialogContent className="max-w-md rounded-2xl">
+        <DialogTitle className="text-lg font-semibold">
+          {values ? "Edit Additional Field" : "Add Additional Field"}
+        </DialogTitle>
+
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
-            {/* Prompt */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-5 mt-4 text-sm"
+          >
+            {/* PROMPT */}
             <FormField
               control={control}
               name="prompt"
               render={({ field }) => (
                 <FormItem>
-                  <Label>Prompt</Label>
+                  <FormLabel>Prompt</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      {...field}
+                      placeholder="Enter question or label..."
+                      className="rounded-lg"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Type */}
+            {/* TYPE */}
             <FormField
               control={control}
               name="type"
               render={() => (
                 <FormItem>
-                  <Label>Type</Label>
+                  <FormLabel>Type</FormLabel>
                   <Select
+                    value={type}
                     onValueChange={(value) =>
                       setValue("type", value as "text" | "options")
                     }
-                    defaultValue={type}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="rounded-lg">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -132,62 +147,107 @@ const AddAdditionalFieldsDialog = ({
               )}
             />
 
-            {/* Options */}
+            {/* OPTIONS (only if type === options) */}
             {type === "options" && (
-              <div>
-                <Label>Options</Label>
+              <div className="space-y-4 border rounded-xl p-4 bg-muted/20">
+                <div className="flex justify-between items-center">
+                  <FormLabel>Options</FormLabel>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => append("")}
+                  >
+                    <Plus className="h-4 w-4 mr-1" /> Add
+                  </Button>
+                </div>
+
+                {fields.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    No options yet — add one above.
+                  </p>
+                )}
+
                 {fields.map((field, index) => (
                   <FormField
                     key={field.id}
                     control={control}
                     name={`options.${index}`}
                     render={({ field }) => (
-                      <FormItem className="flex items-center gap-2 mt-2">
+                      <FormItem className="flex items-center gap-2">
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder={`Option ${index + 1}`}
+                            className="rounded-lg"
+                          />
                         </FormControl>
                         <Button
                           type="button"
+                          size="icon"
                           variant="ghost"
                           onClick={() => remove(index)}
                         >
-                          <X />
+                          <X className="w-4 h-4" />
                         </Button>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => append("")}
-                  className="mt-2"
-                >
-                  Add Option
-                </Button>
 
-                {/* Allow Multiple Options */}
+                {/* MAX SELECTIONS */}
                 <FormField
                   control={control}
-                  name="allowMulitpleOptions"
+                  name="maxSelections"
                   render={({ field }) => (
-                    <div className="flex items-center mt-2">
+                    <FormItem>
+                      <FormLabel>Maximum selections allowed</FormLabel>
                       <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
+                        <Input
+                          type="number"
+                          min={1}
+                          max={options.length || 1}
+                          value={field.value ?? 1}
+                          onChange={(e) => {
+                            const num = Math.min(
+                              Math.max(1, Number(e.target.value)),
+                              options.length || 1
+                            );
+                            field.onChange(num);
+                          }}
+                          className="rounded-lg"
                         />
                       </FormControl>
-                      <Label className="ml-2">Allow Multiple Options</Label>
-                    </div>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
               </div>
             )}
 
-            <Button type="submit" className="mt-4 w-full">
-              Save Field
+            {/* REQUIRED CHECKBOX */}
+            <FormField
+              control={control}
+              name="required"
+              render={({ field }) => (
+                <div className="flex items-center gap-2 pt-2">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <Label className="text-sm font-medium">Required</Label>
+                </div>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="w-full rounded-lg mt-2"
+              variant="default"
+            >
+              {values ? "Update Field" : "Save Field"}
             </Button>
           </form>
         </Form>

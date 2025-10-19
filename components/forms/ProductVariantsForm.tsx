@@ -42,7 +42,8 @@ const ProductVariantsForm = ({ form }: { form: any }) => {
             >
               <div>
                 <div className="text-sm font-semibold">
-                  {variant.optionPrompt}
+                  {variant.optionPrompt}{" "}
+                  {variant.required && <span className="text-red-400">*</span>}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {variant.options.length} options

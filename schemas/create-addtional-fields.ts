@@ -6,8 +6,8 @@ export const CreateAdditionalFieldsSchema = z
     prompt: z.string().min(1, { message: "Please enter your prompt" }),
     type: z.enum(["text", "options"]),
     options: z.array(z.string().min(1, "Option cannot be empty")).default([]), // no .optional() needed if you default to []
-
-    allowMultipleOptions: z.boolean().default(false),
+    required: z.boolean().default(true),
+    maxSelections: z.number().default(1),
   })
   .superRefine((data, ctx) => {
     if (data.type === "options") {

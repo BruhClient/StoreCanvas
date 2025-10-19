@@ -94,7 +94,8 @@ const AdditionalFieldsForm = ({
               >
                 <div className="flex flex-col">
                   <div className="font-bold self-start text-sm">
-                    {field.prompt}
+                    {field.prompt}{" "}
+                    {field.required && <span className="text-red-400">*</span>}
                   </div>
                   <div className="self-start text-xs text-muted-foreground">
                     {field.type}

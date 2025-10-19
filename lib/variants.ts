@@ -7,15 +7,15 @@ export const containerVariants = {
 import { Variants } from "framer-motion";
 
 export const storeCanvasStageVariants = {
-  enter: { opacity: 0, scale: 0.98 },
+  enter: { opacity: 0 },
   center: {
     opacity: 1,
-    scale: 1,
+
     transition: { duration: 0.3, ease: [0.45, 0, 0.55, 1] as const },
   },
   exit: {
     opacity: 0,
-    scale: 0.98,
+
     transition: { duration: 0.3, ease: [0.45, 0, 0.55, 1] as const },
   },
 };
