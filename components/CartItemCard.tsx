@@ -23,7 +23,7 @@ const CartItemCard = ({
   decrementQuantity,
 }: CartItemCardProps) => {
   const additionalTotal =
-    item.additionalCharges?.reduce((sum, c) => sum + c.price, 0) || 0;
+    item.additionalCharges?.reduce((sum: any, c: any) => sum + c.price, 0) || 0;
   const totalPrice = (item.price + additionalTotal) * item.quantity;
 
   return (
@@ -53,7 +53,7 @@ const CartItemCard = ({
 
           {item.additionalCharges?.length > 0 && (
             <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
-              {item.additionalCharges.map((charge) => (
+              {item.additionalCharges.map((charge: any) => (
                 <div key={charge.optionName}>
                   + {charge.optionName}: ${charge.price.toFixed(2)}
                 </div>

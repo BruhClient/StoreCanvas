@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { MotionDiv } from "@/components/Motion";
 import { storeCanvasStageVariants } from "@/lib/variants";
@@ -11,6 +11,9 @@ import StoreAdditionalFields from "./StoreAdditionalFields";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { showErrorToast } from "@/lib/toast";
 import CartButton from "./CartButton";
+import { useCart } from "@/context/cart-context";
+import CartItemsList from "@/components/CartItemList";
+import ReviewOrder from "./ReviewOrder";
 
 export default function StoreCanvasForm({
   store,
@@ -22,6 +25,9 @@ export default function StoreCanvasForm({
   const [additionalFieldValues, setAdditionalFieldValues] = useState<
     Record<string, any>
   >({});
+  const [proceedAfterSave, setProceedAfterSave] = useState(false);
+
+  const { cart } = useCart();
 
   const hasAdditionalFields =
     Array.isArray(store?.additionalFields) && store.additionalFields.length > 0;
@@ -42,19 +48,32 @@ export default function StoreCanvasForm({
   });
 
   const next = () => {
-    // prevent moving to checkout if required fields not filled
     if (hasAdditionalFields && step === 2 && !allRequiredFilled) {
       showErrorToast("Please fill in all required fields before checkout.");
       return;
     }
+
+    if (cart.length === 0 && step > 0) {
+      showErrorToast("Your cart is empty.");
+      return;
+    }
+
     setStep((s) => Math.min(s + 1, sections.length - 1));
   };
 
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
+  // ✅ Ensure `next()` runs after state update finishes
+  useEffect(() => {
+    if (proceedAfterSave) {
+      next();
+      setProceedAfterSave(false);
+    }
+  }, [proceedAfterSave]);
+
   const handleAdditionalFieldsSubmit = (values: Record<string, any>) => {
     setAdditionalFieldValues(values);
-    next();
+    setProceedAfterSave(true);
   };
 
   return (
@@ -105,6 +124,7 @@ export default function StoreCanvasForm({
             <StoreAdditionalFields
               store={store}
               onSubmit={handleAdditionalFieldsSubmit}
+              initialValues={additionalFieldValues}
             />
           </MotionDiv>
         )}
@@ -125,18 +145,7 @@ export default function StoreCanvasForm({
               Check your selected items and additional fields before checkout.
             </p>
 
-            <div className="mt-4">
-              <CartButton />
-            </div>
-
-            {hasAdditionalFields && (
-              <div className="mt-4 p-2 border rounded">
-                <h3 className="font-semibold">Additional Fields</h3>
-                <pre className="text-xs text-muted-foreground">
-                  {JSON.stringify(additionalFieldValues, null, 2)}
-                </pre>
-              </div>
-            )}
+            <ReviewOrder />
 
             <div className="flex justify-between mt-4">
               <Button variant="outline" onClick={back}>
@@ -175,7 +184,7 @@ export default function StoreCanvasForm({
                     );
                     return;
                   }
-                  // Handle order submission here
+                  // TODO: Handle order submission here
                 }}
               >
                 Place Order

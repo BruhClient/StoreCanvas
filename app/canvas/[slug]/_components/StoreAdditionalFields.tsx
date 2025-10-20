@@ -1,10 +1,22 @@
 import FlexImage from "@/components/FlexImage";
 import { Button } from "@/components/ui/button";
+import { stores } from "@/db/schema";
+import { InferSelectModel } from "drizzle-orm";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-export default function StoreAdditionalFields({ store, onSubmit }: any) {
-  const [values, setValues] = useState<Record<string, any>>({});
+export default function StoreAdditionalFields({
+  store,
+  onSubmit,
+  initialValues,
+}: {
+  store: InferSelectModel<typeof stores>;
+  onSubmit: (values: Record<string, any>) => void;
+  initialValues?: Record<string, any>;
+}) {
+  const [values, setValues] = useState<Record<string, any>>(
+    initialValues ?? {}
+  );
 
   const handleChange = (prompt: string, value: any) => {
     setValues((prev) => ({ ...prev, [prompt]: value }));
@@ -32,7 +44,7 @@ export default function StoreAdditionalFields({ store, onSubmit }: any) {
 
       {/* Additional Fields */}
       <div className="space-y-6">
-        {store.additionalFields.map((field: any, i: number) => (
+        {store.additionalFields?.map((field: any, i: number) => (
           <div
             key={i}
             className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
@@ -48,20 +60,25 @@ export default function StoreAdditionalFields({ store, onSubmit }: any) {
                 className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                 placeholder={`Enter ${field.prompt.toLowerCase()}`}
                 required={field.required}
+                value={values[field.prompt] ?? ""}
                 onChange={(e) => handleChange(field.prompt, e.target.value)}
               />
             ) : (
               <div className="space-y-2">
                 {/* Show max selections info */}
-                <p className="text-xs text-muted-foreground mb-1">
-                  Select up to {field.maxSelections} option
-                  {field.maxSelections > 1 ? "s" : ""}
-                </p>
+                {field.maxSelections && (
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Select up to {field.maxSelections} option
+                    {field.maxSelections > 1 ? "s" : ""}
+                  </p>
+                )}
 
-                {field.options.map((opt: string, j: number) => {
+                {field.options?.map((opt: string, j: number) => {
                   const selected = values[field.prompt] || [];
                   const checked = selected.includes(opt);
-                  const maxReached = selected.length >= field.maxSelections;
+                  const maxReached =
+                    field.maxSelections &&
+                    selected.length >= field.maxSelections;
 
                   return (
                     <label
@@ -78,13 +95,14 @@ export default function StoreAdditionalFields({ store, onSubmit }: any) {
                         disabled={!checked && maxReached}
                         className="h-4 w-4 accent-indigo-500"
                         onChange={(e) => {
-                          if (e.target.checked)
+                          if (e.target.checked) {
                             handleChange(field.prompt, [...selected, opt]);
-                          else
+                          } else {
                             handleChange(
                               field.prompt,
                               selected.filter((o: string) => o !== opt)
                             );
+                          }
                         }}
                       />
                       <span className="text-sm">{opt}</span>
@@ -98,8 +116,8 @@ export default function StoreAdditionalFields({ store, onSubmit }: any) {
       </div>
 
       {/* Continue Button */}
-      <Button onClick={() => onSubmit(values)} className="w-full ">
-        Continue to Checkout <ChevronRight />
+      <Button onClick={() => onSubmit(values)} className="w-full">
+        Continue to Checkout <ChevronRight className="ml-1 h-4 w-4" />
       </Button>
     </div>
   );

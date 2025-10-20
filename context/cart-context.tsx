@@ -41,6 +41,7 @@ const getVariantKey = (variants?: Record<string, string[]>) => {
   const sortedEntries = Object.entries(variants)
     .map(([key, values]) => [key, values.filter(Boolean)]) // remove empty values
     .filter(([, values]) => values.length > 0) // ignore empty arrays
+    //@ts-ignore
     .sort(([a], [b]) => a.localeCompare(b)); // sort keys alphabetically
 
   if (sortedEntries.length === 0) return "default";
